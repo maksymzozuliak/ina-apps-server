@@ -16,6 +16,7 @@ data class User(
     val dateOfRegistration: String,
     val name: String,
     val ordered: Int,
+    val favoriteDishesIdList: List<String>?,
     val paid: Float,
     val phoneNumber: String
 )

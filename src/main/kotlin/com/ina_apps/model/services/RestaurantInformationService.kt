@@ -1,5 +1,6 @@
 package com.ina_apps.model.services
 
+import com.ina_apps.model.classes.Category
 import com.ina_apps.model.classes.RestaurantInformation
 
 interface RestaurantInformationService {
@@ -9,4 +10,6 @@ interface RestaurantInformationService {
     suspend fun updateRestaurantInformation( restaurantInformation: RestaurantInformation) : Boolean
 
     suspend fun getRestaurantInformationById( id: String) : RestaurantInformation?
+
+    suspend fun addCategory( id: String, category: Category) : Boolean
 }

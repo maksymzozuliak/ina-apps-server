@@ -1,16 +1,18 @@
 package com.ina_apps.data.services_implemintation
 
 import com.ina_apps.model.classes.Dish
-import com.ina_apps.model.classes.Order
+import com.ina_apps.model.classes.User
 import com.ina_apps.model.services.DishesService
-import com.ina_apps.model.services.OrdersService
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import org.litote.kmongo.eq
+import org.litote.kmongo.`in`
 
 class DishesServiceMongoDBImplementation(database: MongoDatabase): DishesService {
 
     private val dishesCollection = database.getCollection<Dish>("Dish")
+    private val userCollection = database.getCollection<User>("User")
 
     override suspend fun insertDish(dish: Dish): Boolean {
 
@@ -22,6 +24,13 @@ class DishesServiceMongoDBImplementation(database: MongoDatabase): DishesService
 
         val dishesForRestaurant = dishesCollection.find(Dish::restaurantId eq id)
         return dishesForRestaurant.toList()
+    }
+
+    override suspend fun getFavoriteForUser(id: String): List<Dish> {
+
+        val user = userCollection.find(User::id eq id).firstOrNull()
+        val favoriteList: List<String> = user?.favoriteDishesIdList ?: listOf<String>()
+        return dishesCollection.find(Dish::id `in` favoriteList).toList()
     }
 
 }

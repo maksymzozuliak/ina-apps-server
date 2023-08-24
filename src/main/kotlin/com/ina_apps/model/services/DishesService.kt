@@ -7,4 +7,6 @@ interface DishesService {
     suspend fun insertDish(dish: Dish) : Boolean
 
     suspend fun getDishesForRestaurant(id: String) : List<Dish>
+
+    suspend fun getFavoriteForUser(id: String) : List<Dish>
 }
