@@ -1,0 +1,1 @@
+web: ./build/install/ina-apps-server/bin/ktor-sample

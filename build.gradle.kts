@@ -12,6 +12,10 @@ plugins {
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.0"
 }
 
+tasks {
+    create("stage").dependsOn("installDist")
+}
+
 group = "com.ina_apps"
 version = "0.0.1"
 
