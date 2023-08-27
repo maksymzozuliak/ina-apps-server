@@ -1,5 +1,6 @@
 package com.ina_apps.plugins.routes
 
+import com.google.cloud.storage.*
 import com.ina_apps.model.classes.Category
 import com.ina_apps.model.classes.RestaurantInformation
 import com.ina_apps.model.services.RestaurantInformationService
@@ -13,7 +14,8 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 fun Route.restaurantInformationRouting(
-    restaurantInformationService: RestaurantInformationService
+    restaurantInformationService: RestaurantInformationService,
+    storage: Storage
 ) {
     route("/restaurantInformation") {
 
@@ -54,32 +56,49 @@ fun Route.restaurantInformationRouting(
             }
         }
 
-        put("/addCategory/{id}") {
+        put("/addCategory/{restaurantId}") {
 
-            val id = call.parameters["id"]
+            val restaurantId = call.parameters["restaurantId"]
             val color = call.parameters["color"]
+            val index = call.parameters["index"]?.toInt()
             val multipart = call.receiveMultipart()
             var categoryReceiver: CategoryReceiver? = null
+            var image: PartData.FileItem? = null
             var byteArray: ByteArray? = null
-            if (id != null) {
+            if (restaurantId != null) {
                 multipart.forEachPart { part ->
                     if (part is PartData.FileItem) {
-                        byteArray = part.streamProvider().readBytes()
+
+                        image = part
                     } else if (part is PartData.FormItem) {
                         if (part.name == "name") {
                             val nameJson = part.value
                             categoryReceiver = Json.decodeFromString(nameJson)
+                        }
+                        part.dispose()
                     }
                 }
-                    part.dispose()
-                }
                 if (categoryReceiver != null) {
-                    val result = restaurantInformationService.addCategory(id,
+                    val bucket: Bucket? = storage.get(restaurantId)
+                    if (bucket == null) {
+                        val bucketInfo = BucketInfo.newBuilder(restaurantId)
+                            .setStorageClass(StorageClass.STANDARD)
+                            .build()
+                        storage.create(bucketInfo)
+                    }
+                    val blobId = BlobId.of(restaurantId, "category-"+image!!.originalFileName)
+                    val blobInfo = BlobInfo.newBuilder(blobId)
+                        .setContentType(image!!.contentType?.contentType)
+                        .build()
+                    storage.createFrom(blobInfo, image!!.streamProvider.invoke())
+                    image!!.dispose()
+                    val result = restaurantInformationService.addCategory(restaurantId,
                         Category(
                             id = categoryReceiver!!.name.hashCode(),
                             name = categoryReceiver!!.name,
                             color = color,
-                            image = byteArray
+                            index = index,
+                            imageName = "category-"+image!!.originalFileName
                         )
                     )
                     if (result) {
@@ -90,6 +109,9 @@ fun Route.restaurantInformationRouting(
                 }
             } else {
                 call.respond(HttpStatusCode.BadRequest)
+            }
+            if (image != null) {
+                image!!.dispose()
             }
         }
     }

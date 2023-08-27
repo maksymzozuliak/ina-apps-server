@@ -1,9 +1,9 @@
 package com.ina_apps.plugins.routes
 
-import com.ina_apps.model.classes.Category
+import com.google.auth.oauth2.GoogleCredentials
+import com.google.cloud.storage.*
+import com.google.common.base.Preconditions
 import com.ina_apps.model.classes.Dish
-import com.ina_apps.model.services.OrdersService
-import com.ina_apps.model.classes.Order
 import com.ina_apps.model.services.DishesService
 import io.ktor.http.*
 import io.ktor.http.content.*
@@ -12,9 +12,14 @@ import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
+import java.io.ByteArrayInputStream
+import java.io.FileInputStream
+import java.nio.file.Paths
+
 
 fun Route.dishesRouting(
-    dishesService: DishesService
+    dishesService: DishesService,
+    storage: Storage
 ) {
     route("/dishes") {
 
@@ -22,27 +27,44 @@ fun Route.dishesRouting(
 
             val multipart = call.receiveMultipart()
             var dish: Dish? = null
-            var byteArray: ByteArray? = null
+            var image: PartData.FileItem? = null
+
             multipart.forEachPart { part ->
                 if (part is PartData.FileItem) {
-                    byteArray = part.streamProvider().readBytes()
+
+                    image = part
                 } else if (part is PartData.FormItem) {
                     if (part.name == "dish") {
                         val dishJson = part.value
                         dish = Json.decodeFromString(dishJson)
                     }
+                    part.dispose()
                 }
-                part.dispose()
             }
-            if (dish != null) {
+            if (dish != null && image != null) {
+                val bucket: Bucket? = storage.get(dish!!.restaurantId)
+                if (bucket == null) {
+                    val bucketInfo = BucketInfo.newBuilder(dish!!.restaurantId)
+                        .setStorageClass(StorageClass.STANDARD)
+                        .build()
+                    storage.create(bucketInfo)
+                }
+                val blobId = BlobId.of(dish!!.restaurantId, image!!.originalFileName)
+                val blobInfo = BlobInfo.newBuilder(blobId)
+                    .setContentType(image!!.contentType?.contentType)
+                    .build()
+                storage.createFrom(blobInfo, image!!.streamProvider.invoke())
                 val result = dishesService.insertDish(
-                    dish!!.copy(image = byteArray)
+                    dish!!.copy(imageName = image!!.originalFileName)
                 )
+                image!!.dispose()
                 if (result) {
                     call.respond(HttpStatusCode.Created)
                 } else {
                     call.respond(HttpStatusCode.BadRequest)
                 }
+            } else if (image != null) {
+                image!!.dispose()
             }
         }
 
