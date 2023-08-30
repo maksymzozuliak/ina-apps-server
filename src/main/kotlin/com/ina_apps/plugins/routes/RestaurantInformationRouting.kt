@@ -1,6 +1,7 @@
 package com.ina_apps.plugins.routes
 
 import com.google.cloud.storage.*
+import com.ina_apps.data.getBucketOrCreate
 import com.ina_apps.model.classes.Category
 import com.ina_apps.model.classes.RestaurantInformation
 import com.ina_apps.model.services.RestaurantInformationService
@@ -64,7 +65,6 @@ fun Route.restaurantInformationRouting(
             val multipart = call.receiveMultipart()
             var categoryReceiver: CategoryReceiver? = null
             var image: PartData.FileItem? = null
-            var byteArray: ByteArray? = null
             if (restaurantId != null) {
                 multipart.forEachPart { part ->
                     if (part is PartData.FileItem) {
@@ -79,14 +79,8 @@ fun Route.restaurantInformationRouting(
                     }
                 }
                 if (categoryReceiver != null) {
-                    val bucket: Bucket? = storage.get(restaurantId)
-                    if (bucket == null) {
-                        val bucketInfo = BucketInfo.newBuilder(restaurantId)
-                            .setStorageClass(StorageClass.STANDARD)
-                            .build()
-                        storage.create(bucketInfo)
-                    }
-                    val blobId = BlobId.of(restaurantId, "category-"+image!!.originalFileName)
+                    val bucket = getBucketOrCreate(restaurantId, storage)
+                    val blobId = BlobId.of(bucket.name, "category-"+image!!.originalFileName)
                     val blobInfo = BlobInfo.newBuilder(blobId)
                         .setContentType(image!!.contentType?.contentType)
                         .build()

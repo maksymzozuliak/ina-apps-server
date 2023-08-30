@@ -3,6 +3,7 @@ package com.ina_apps.plugins.routes
 import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.storage.*
 import com.google.common.base.Preconditions
+import com.ina_apps.data.getBucketOrCreate
 import com.ina_apps.model.classes.Dish
 import com.ina_apps.model.services.DishesService
 import io.ktor.http.*
@@ -42,14 +43,8 @@ fun Route.dishesRouting(
                 }
             }
             if (dish != null && image != null) {
-                val bucket: Bucket? = storage.get(dish!!.restaurantId)
-                if (bucket == null) {
-                    val bucketInfo = BucketInfo.newBuilder(dish!!.restaurantId)
-                        .setStorageClass(StorageClass.STANDARD)
-                        .build()
-                    storage.create(bucketInfo)
-                }
-                val blobId = BlobId.of(dish!!.restaurantId, image!!.originalFileName)
+                val bucket = getBucketOrCreate(dish!!.restaurantId, storage)
+                val blobId = BlobId.of(bucket.name, image!!.originalFileName)
                 val blobInfo = BlobInfo.newBuilder(blobId)
                     .setContentType(image!!.contentType?.contentType)
                     .build()
