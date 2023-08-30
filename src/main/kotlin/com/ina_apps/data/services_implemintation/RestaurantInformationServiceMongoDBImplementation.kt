@@ -1,16 +1,12 @@
 package com.ina_apps.data.services_implemintation
 
 import com.ina_apps.model.classes.Category
-import com.ina_apps.model.classes.Order
 import com.ina_apps.model.classes.RestaurantInformation
 import com.ina_apps.model.services.RestaurantInformationService
 import com.mongodb.client.model.Updates.addToSet
-import com.mongodb.client.model.Updates.set
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.firstOrNull
 import org.litote.kmongo.eq
-import org.litote.kmongo.getCollection
-import org.litote.kmongo.setTo
 
 class RestaurantInformationServiceMongoDBImplementation(database: MongoDatabase): RestaurantInformationService {
 
@@ -37,7 +33,16 @@ class RestaurantInformationServiceMongoDBImplementation(database: MongoDatabase)
 
     override suspend fun addCategory(id: String, category: Category): Boolean {
 
-        val result = restaurantInformationCollection.findOneAndUpdate(RestaurantInformation::id eq id, addToSet("category", category) )
+        val result: RestaurantInformation? = if (category.index == null) {
+            val categories = getRestaurantInformationById(id)?.category
+            restaurantInformationCollection.findOneAndUpdate(
+                RestaurantInformation::id eq id, addToSet("category", category.copy(index = categories?.size))
+            )
+        } else {
+            restaurantInformationCollection.findOneAndUpdate(
+                RestaurantInformation::id eq id, addToSet("category", category)
+            )
+        }
         return result != null
     }
 }
