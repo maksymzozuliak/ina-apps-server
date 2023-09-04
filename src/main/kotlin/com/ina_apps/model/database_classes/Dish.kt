@@ -1,4 +1,4 @@
-package com.ina_apps.model.classes
+package com.ina_apps.model.database_classes
 
 import kotlinx.serialization.*
 import org.bson.codecs.pojo.annotations.BsonId

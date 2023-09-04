@@ -1,7 +1,7 @@
 package com.ina_apps.plugins.routes
 
 import com.ina_apps.model.services.OrdersService
-import com.ina_apps.model.classes.Order
+import com.ina_apps.model.database_classes.Order
 import io.ktor.http.*
 import io.ktor.server.application.*
 import io.ktor.server.request.*

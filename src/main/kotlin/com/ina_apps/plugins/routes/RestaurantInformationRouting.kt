@@ -2,8 +2,8 @@ package com.ina_apps.plugins.routes
 
 import com.google.cloud.storage.*
 import com.ina_apps.data.getBucketOrCreate
-import com.ina_apps.model.classes.Category
-import com.ina_apps.model.classes.RestaurantInformation
+import com.ina_apps.model.database_classes.Category
+import com.ina_apps.model.database_classes.RestaurantInformation
 import com.ina_apps.model.services.RestaurantInformationService
 import io.ktor.http.*
 import io.ktor.http.content.*

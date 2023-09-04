@@ -1,9 +1,7 @@
 package com.ina_apps.plugins.routes
 
-import com.ina_apps.model.classes.Order
-import com.ina_apps.model.classes.RestaurantInformation
-import com.ina_apps.model.classes.User
-import com.ina_apps.model.services.OrdersService
+import com.ina_apps.model.database_classes.User
+import com.ina_apps.model.database_classes.UserInformation
 import com.ina_apps.model.services.UserService
 import io.ktor.http.*
 import io.ktor.server.application.*

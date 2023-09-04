@@ -1,4 +1,4 @@
-package com.ina_apps.model.classes
+package com.ina_apps.model.database_classes
 
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
@@ -32,8 +32,8 @@ data class Address(
 
     val street: String,
     val building: String,
-    val entrance: Int,
-    val apartment: Int
+    val entrance: String,
+    val apartment: String
 )
 
 @Serializable

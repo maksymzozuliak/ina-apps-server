@@ -1,6 +1,6 @@
 package com.ina_apps.data.services_implemintation
 
-import com.ina_apps.model.classes.Order
+import com.ina_apps.model.database_classes.Order
 import com.ina_apps.model.services.OrdersService
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.firstOrNull

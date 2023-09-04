@@ -1,21 +1,18 @@
 package com.ina_apps.plugins.routes
 
-import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.storage.*
-import com.google.common.base.Preconditions
 import com.ina_apps.data.getBucketOrCreate
-import com.ina_apps.model.classes.Dish
+import com.ina_apps.model.database_classes.Dish
 import com.ina_apps.model.services.DishesService
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
 import kotlinx.serialization.json.Json
-import java.io.ByteArrayInputStream
-import java.io.FileInputStream
-import java.nio.file.Paths
 
 
 fun Route.dishesRouting(
@@ -63,16 +60,26 @@ fun Route.dishesRouting(
             }
         }
 
-        get("/getForRestaurant/{restaurantId}") {
+        get("/getForRestaurant}") {
 
-            val restaurantId = call.parameters["restaurantId"] ?: ""
+            val principal = call.principal<JWTPrincipal>()
+            val restaurantId = principal?.getClaim("restaurantId", String::class)
+            if (restaurantId == null) {
+                call.respond(HttpStatusCode.BadRequest)
+                return@get
+            }
             val dishesForRestaurant = dishesService.getDishesForRestaurant(id = restaurantId)
             call.respond(dishesForRestaurant)
         }
 
-        get("/getFavoriteForUser/{userId}") {
+        get("/getFavoriteForUser") {
 
-            val userId = call.parameters["userId"] ?: ""
+            val principal = call.principal<JWTPrincipal>()
+            val userId = principal?.getClaim("userId", String::class)
+            if (userId == null) {
+                call.respond(HttpStatusCode.BadRequest)
+                return@get
+            }
             val favoriteForUser = dishesService.getFavoriteForUser(id = userId)
             call.respond(favoriteForUser)
         }

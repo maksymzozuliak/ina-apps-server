@@ -1,4 +1,4 @@
-package com.ina_apps.model.classes
+package com.ina_apps.model.database_classes
 
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
@@ -9,7 +9,16 @@ data class User(
 
     @BsonId
     val id: String? = ObjectId().toString(),
+    val email: String,
+    val password: String,
+    val salt: String,
     val restaurantId: String,
+    val userInformation: UserInformation? = null
+)
+
+@Serializable
+data class UserInformation(
+
     val address: List<Address>,
     val dateOfBirth: String,
     val bonus: Int,
