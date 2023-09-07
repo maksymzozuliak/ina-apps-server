@@ -37,22 +37,13 @@ fun Application.configureSecurity(config: TokenConfig) {
         cookie<RegistrationSession>("SESSION")
     }
 
-//    intercept(Plugins) {
-//        if(call.sessions.get<MenuSession>() == null) {
-//            println("ANTOON")
-//            val userId = call.parameters["userId"] ?: "Guest"
-//            call.sessions.set(MenuSession(userId, generateNonce()))
-//        }
-//    }
-
     intercept(Plugins) {
         if(call.sessions.get<RegistrationSession>() == null) {
-            println("ANTOON")
-            val restaurantId = call.parameters["restaurantId"] ?: throw NullPointerException()
+            val restaurantId = call.parameters["restaurantId"]
             call.sessions.set(
                 RegistrationSession(
                     sessionId = generateSessionId(),
-                    restaurantId = restaurantId
+                    restaurantId = restaurantId?:""
                 )
             )
         }
