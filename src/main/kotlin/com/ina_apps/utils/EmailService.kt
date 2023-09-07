@@ -1,5 +1,6 @@
 package com.ina_apps.utils
 
+import com.ina_apps.model.services.RestaurantInformationService
 import org.apache.commons.mail.DefaultAuthenticator
 import org.apache.commons.mail.HtmlEmail
 import java.io.File
@@ -7,7 +8,7 @@ import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-class EmailService {
+class EmailService(val restaurantInformationService: RestaurantInformationService) {
 
     private val executorService = Executors.newScheduledThreadPool(1)
 
@@ -22,36 +23,44 @@ class EmailService {
         executorService.schedule({
 
             users.remove(targetEmail)
-        }, 300.toLong(), TimeUnit.SECONDS)
+        }, 600.toLong(), TimeUnit.SECONDS)
 
         return verificationCode
     }
 
-    suspend fun sendVerificationEmail(targetEmail: String) {
+    suspend fun sendVerificationEmail(targetEmail: String, restaurantId: String) {
 
-        val email = HtmlEmail()
-        email.apply {
-            hostName = "smtp.googlemail.com"
-            setSmtpPort(465)
-            setAuthenticator(
-                DefaultAuthenticator(
-                    System.getenv("VERIFICATION_EMAIL"),
-                    System.getenv("VERIFICATION_EMAIL_PASSWORD")
+        val restaurant = restaurantInformationService.getRestaurantInformationById(restaurantId)
+        if (restaurant != null) {
+            val email = HtmlEmail()
+            email.apply {
+                hostName = "smtp.googlemail.com"
+                setSmtpPort(465)
+                setAuthenticator(
+                    DefaultAuthenticator(
+                        System.getenv("VERIFICATION_EMAIL"),
+                        System.getenv("VERIFICATION_EMAIL_PASSWORD")
+                    )
                 )
-            )
-            setFrom(System.getenv("VERIFICATION_EMAIL"), "InA Apps")
-            isSSLOnConnect = true
-            subject = "Verification"
-            setHtmlMsg(
-                readAndReplacePlaceholder(
-                filePath = "src/main/kotlin/com/ina_apps/res/VerificationEmail.html",
-                placeholder = "{VERIFICATION_CODE}",
-                replacement = generateCode(targetEmail)
+                setFrom(System.getenv("VERIFICATION_EMAIL"), restaurant.name)
+                isSSLOnConnect = true
+                subject = "Verification"
+                setHtmlMsg(
+                    readAndReplacePlaceholder(
+                        filePath = "src/main/kotlin/com/ina_apps/res/VerificationEmail.html",
+                        pair = arrayOf(
+                            Pair("*|RESTAURANT_NAME|*!", restaurant.name),
+                            Pair("*|VERIFICATION_CODE|*", generateCode(targetEmail)),
+                            Pair("*|FACEBOOK_LINK|*", restaurant.facebookURL ?: ""),
+                            Pair("*|INSTAGRAM_LINK|*", restaurant.instagramURL ?: ""),
+                            Pair("*|BOTTOM_INFO|*", "${restaurant.name}. ${restaurant.address}.")
+                        )
+                    )
                 )
-            )
-            addTo(targetEmail)
+                addTo(targetEmail)
+            }
+            email.send()
         }
-        email.send()
     }
 
     fun verifyCode(email: String, code: String): Boolean {
@@ -64,11 +73,14 @@ class EmailService {
         return verify
     }
 
-    private fun readAndReplacePlaceholder(filePath: String, placeholder: String, replacement: String): String {
+    private fun readAndReplacePlaceholder(filePath: String, vararg pair: Pair<String, String>): String {
         val file = File(filePath)
         if (file.exists()) {
-            val htmlContent = file.readText()
-            return htmlContent.replace(placeholder, replacement)
+            var htmlContent = file.readText()
+            pair.forEach {
+                htmlContent = htmlContent.replace(it.first, it.second)
+            }
+            return htmlContent
         } else {
             throw IllegalArgumentException("File not found: $filePath")
         }

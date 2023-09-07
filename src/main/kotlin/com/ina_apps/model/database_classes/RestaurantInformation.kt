@@ -9,6 +9,7 @@ data class RestaurantInformation(
 
     @BsonId
     val id: String? = ObjectId().toString(),
+    val name: String,
     val address: String,
     val facebookURL: String?,
     val instagramURL: String?,

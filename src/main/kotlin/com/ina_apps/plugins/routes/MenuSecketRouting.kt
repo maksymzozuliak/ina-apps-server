@@ -10,6 +10,7 @@ import io.ktor.server.sessions.*
 import io.ktor.server.websocket.*
 import io.ktor.websocket.*
 import kotlinx.coroutines.channels.consumeEach
+import org.koin.core.component.getScopeId
 import org.litote.kmongo.json
 
 fun Route.menuSocketRouting(roomController: RoomController) {
@@ -28,7 +29,7 @@ fun Route.menuSocketRouting(roomController: RoomController) {
             )
             incoming.consumeEach { frame ->
                 if(frame is Frame.Text) {
-                    roomController.sendUpdatedDishesList(frame.data.toString())
+                    roomController.sendUpdatedDishesList(frame.readText())
                 }
             }
         } catch (e: Exception) {

@@ -60,10 +60,9 @@ fun Route.dishesRouting(
             }
         }
 
-        get("/getForRestaurant}") {
+        get("/getForRestaurant/{restaurantId}") {
 
-            val principal = call.principal<JWTPrincipal>()
-            val restaurantId = principal?.getClaim("restaurantId", String::class)
+            val restaurantId = call.parameters["restaurantId"]
             if (restaurantId == null) {
                 call.respond(HttpStatusCode.BadRequest)
                 return@get

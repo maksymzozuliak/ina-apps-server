@@ -41,8 +41,6 @@ fun Application.module() {
         }
     }
 
-    val emailService = EmailService()
-
     // MongoDB
     val uri = System.getenv("CONNECTION_STRING_URI")
     val mongoDBClient = MongoClient.create(uri)
@@ -57,8 +55,7 @@ fun Application.module() {
         client = client,
         hashingService = hashingService,
         tokenService = tokenService,
-        tokenConfig = tokenConfig,
-        emailService = emailService
+        tokenConfig = tokenConfig
     )
 
 }

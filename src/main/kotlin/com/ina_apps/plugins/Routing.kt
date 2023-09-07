@@ -4,6 +4,7 @@ import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.storage.StorageOptions
 import com.ina_apps.data.services_implemintation.*
 import com.ina_apps.plugins.routes.*
+import com.ina_apps.room.RegistrationRoomController
 import com.ina_apps.room.RoomController
 import com.ina_apps.utils.EmailService
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
@@ -21,8 +22,7 @@ fun Application.configureRouting(
     client: HttpClient,
     hashingService: HashingService,
     tokenService: TokenService,
-    tokenConfig: TokenConfig,
-    emailService: EmailService
+    tokenConfig: TokenConfig
 ) {
 
     val oneSignalService = OneSignalServiceImpl(client, System.getenv("ONE_SIGNAL_REST_API_KEY"))
@@ -31,6 +31,10 @@ fun Application.configureRouting(
     val dishesService = DishesServiceMongoDBImplementation(database)
     val restaurantInformationService = RestaurantInformationServiceMongoDBImplementation(database)
     val userService = UserServiceMongoDBImplementation(database)
+
+    val emailService = EmailService(restaurantInformationService)
+
+    val registrationRoomController = RegistrationRoomController()
 
     val jsonKey = System.getenv("GOOGLE_APPLICATION_CREDENTIALS")
     val projectId = System.getenv("GOOGLE_PROJECT_ID")
@@ -43,13 +47,12 @@ fun Application.configureRouting(
 
     routing {
 
-
         ordersRouting(ordersService)
         dishesRouting(dishesService, storage)
         restaurantInformationRouting(restaurantInformationService, storage)
         usersRouting(userService)
         menuSocketRouting(RoomController())
         oneSignalRouting(oneSignalService)
-        authRouting(userService, hashingService, tokenService, tokenConfig, emailService)
+        authRouting(userService, hashingService, tokenService, tokenConfig, emailService,registrationRoomController)
     }
 }
