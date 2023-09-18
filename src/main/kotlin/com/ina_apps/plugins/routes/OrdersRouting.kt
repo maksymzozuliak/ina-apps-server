@@ -1,5 +1,6 @@
 package com.ina_apps.plugins.routes
 
+import com.google.api.client.util.DateTime
 import com.ina_apps.model.services.OrdersService
 import com.ina_apps.model.database_classes.Order
 import io.ktor.http.*
@@ -7,6 +8,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import java.time.LocalDateTime
 
 fun Route.ordersRouting(
     ordersService: OrdersService
@@ -16,7 +18,7 @@ fun Route.ordersRouting(
         post("/insert") {
 
             val order = call.receive<Order>()
-            val result = ordersService.insertOrder(order)
+            val result = ordersService.insertOrder(order.copy(date = LocalDateTime.now().toString()))
             if (result) {
                 call.respond(HttpStatusCode.Created)
             } else {
@@ -50,5 +52,16 @@ fun Route.ordersRouting(
             }
         }
 
+        get("/getForUser/{userId}") {
+
+            val userId = call.parameters["userId"]
+            if (userId != null) {
+                val ordersForUser = ordersService.getOrdersForUser(userId)
+                call.respond(HttpStatusCode.OK, ordersForUser)
+
+            } else {
+                call.respond(HttpStatusCode.BadRequest)
+            }
+        }
     }
 }

@@ -4,6 +4,7 @@ import com.ina_apps.model.database_classes.Order
 import com.ina_apps.model.services.OrdersService
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.toList
 import org.litote.kmongo.eq
 
 class OrderServiceMongoDBImplementation(database: MongoDatabase): OrdersService {
@@ -27,6 +28,11 @@ class OrderServiceMongoDBImplementation(database: MongoDatabase): OrdersService 
     override suspend fun getOrderById(id: String): Order? {
 
         return ordersCollection.find(Order::id eq id).firstOrNull()
+    }
+
+    override suspend fun getOrdersForUser(userID: String): List<Order> {
+
+        return ordersCollection.find(Order::userId eq userID).toList()
     }
 
 }

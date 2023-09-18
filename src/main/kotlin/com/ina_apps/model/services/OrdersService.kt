@@ -10,4 +10,6 @@ interface OrdersService {
 
     suspend fun getOrderById(id: String): Order?
 
+    suspend fun getOrdersForUser(userID: String): List<Order>
+
 }

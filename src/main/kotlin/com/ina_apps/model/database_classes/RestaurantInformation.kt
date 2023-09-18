@@ -36,9 +36,8 @@ data class Category(
 @Serializable
 data class DeliverySettings(
 
-    val restaurantId: String,
-    val startHour: String,
-    val lastHour: String,
+    val startHour: Int,
+    val lastHour: Int,
     val price: Float,
     val nearestTimeInMinutes: Int
 )

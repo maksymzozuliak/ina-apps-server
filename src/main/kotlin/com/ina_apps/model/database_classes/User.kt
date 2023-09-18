@@ -19,13 +19,13 @@ data class User(
 @Serializable
 data class UserInformation(
 
-    val address: List<Address>? = null,
+    val address: List<Address> = listOf(),
     val dateOfBirth: String? = null,
     val bonus: Int? = null,
     val dateOfRegistration: String? = null,
     val name: String?,
     val ordered: Int? = null,
-    val favoriteDishesIdList: List<String>? = null,
+    val favoriteDishesIdList: List<String> = listOf(),
     val paid: Float? = null,
     val phoneNumber: String?
 )

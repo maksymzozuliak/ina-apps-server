@@ -3,27 +3,47 @@ package com.ina_apps.model.database_classes
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
+import java.time.LocalDateTime
 
+
+//String? userId;
+//  String? name;
+//  String? phoneNumber;
+//  Address? address;
+//  List<DishForOrder>? dishListInOrder;
+//  String comment;
+//  Payment payment;
+//  String? change;
+//  int countOfCutlery;
+//  Courier courier;
+//  String? date;
+//  String? time;
+//  bool delivery;
+//  String? forTime;
+//  int? number;/
 @Serializable
 data class Order(
 
     @BsonId
     val id: String? = ObjectId().toString(),
     val restaurantId: String,
-    val address : Address,
-    val change: Float?,
-    val comment: String,
-    val countOfCutlery: Int,
-    val courierId: String,
-    val date: String,
-    val isDelivery: Boolean,
+    val phoneNumber: String? = null,
+    val name: String? = null,
+    val address : Address? = null,
     val dishesIdList: List<String>,
-    val forTime: String,
+    val comment: String? = null,
     val paymentMethod: PaymentMethod,
-    val status: OrderStatus,
-    val timeHistory: TimeHistory,
-    val userId: String?,
-    val guestUser: GuestUser?
+    val change: String? = null,
+    val countOfCutlery: Int,
+    val courierId: String? = null,
+    val date: String? = null,
+    val isDelivery: Boolean,
+    val forTime: String? = null,
+    val forDate: String? = null,
+    val status: OrderStatus? = null,
+    val timeHistory: TimeHistory? = null,
+    val userId: String? = null,
+    val number: Int? = null
 
 )
 
@@ -45,13 +65,6 @@ data class TimeHistory(
     val timeOfDelivering: String,
     val timeOfFinishing: String
 
-)
-
-@Serializable
-data class GuestUser(
-
-    val number: String,
-    val name: String
 )
 
 @Serializable
