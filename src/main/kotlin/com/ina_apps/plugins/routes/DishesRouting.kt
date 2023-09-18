@@ -71,16 +71,19 @@ fun Route.dishesRouting(
             call.respond(dishesForRestaurant)
         }
 
-        get("/getFavoriteForUser") {
+        authenticate {
 
-            val principal = call.principal<JWTPrincipal>()
-            val userId = principal?.getClaim("userId", String::class)
-            if (userId == null) {
-                call.respond(HttpStatusCode.BadRequest)
-                return@get
+            get("/getFavoriteForUser") {
+
+                val principal = call.principal<JWTPrincipal>()
+                val userId = principal?.getClaim("userId", String::class)
+                if (userId == null) {
+                    call.respond(HttpStatusCode.BadRequest)
+                    return@get
+                }
+                val favoriteForUser = dishesService.getFavoriteForUser(id = userId)
+                call.respond(favoriteForUser)
             }
-            val favoriteForUser = dishesService.getFavoriteForUser(id = userId)
-            call.respond(favoriteForUser)
         }
     }
 }
