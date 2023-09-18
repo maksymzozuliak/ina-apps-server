@@ -1,4 +1,4 @@
-package com.ina_apps.model.classes
+package com.ina_apps.model.database_classes
 
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
@@ -9,6 +9,7 @@ data class RestaurantInformation(
 
     @BsonId
     val id: String? = ObjectId().toString(),
+    val name: String,
     val address: String,
     val facebookURL: String?,
     val instagramURL: String?,
@@ -35,9 +36,8 @@ data class Category(
 @Serializable
 data class DeliverySettings(
 
-    val restaurantId: String,
-    val startHour: String,
-    val lastHour: String,
+    val startHour: Int,
+    val lastHour: Int,
     val price: Float,
     val nearestTimeInMinutes: Int
 )

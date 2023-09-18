@@ -4,6 +4,7 @@ val logback_version: String by project
 val kmongo_version: String by project
 val mongodb_driver: String by project
 val koin_version: String by project
+val commons_codec_version: String by project
 
 
 plugins {
@@ -52,6 +53,18 @@ dependencies {
     implementation("io.insert-koin:koin-ktor:$koin_version")
     implementation("io.insert-koin:koin-logger-slf4j:$koin_version")
 
+    // Ktor client
+    implementation("io.ktor:ktor-client-core:$ktor_version")
+    implementation("io.ktor:ktor-client-cio:$ktor_version")
+    implementation("io.ktor:ktor-client-serialization:$ktor_version")
+    implementation("io.ktor:ktor-client-content-negotiation:$ktor_version")
+
     // Google cloud storage
     implementation("com.google.cloud:google-cloud-storage:1.116.0")
+
+    // Hashing
+    implementation("commons-codec:commons-codec:$commons_codec_version")
+
+    // Email sending
+    implementation("org.apache.commons:commons-email:1.5")
 }

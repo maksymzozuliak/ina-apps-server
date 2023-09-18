@@ -1,6 +1,6 @@
 package com.ina_apps.model.services
 
-import com.ina_apps.model.classes.Order
+import com.ina_apps.model.database_classes.Order
 
 interface OrdersService {
 
@@ -9,5 +9,7 @@ interface OrdersService {
     suspend fun updateOrder(order: Order): Boolean
 
     suspend fun getOrderById(id: String): Order?
+
+    suspend fun getOrdersForUser(userID: String): List<Order>
 
 }

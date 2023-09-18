@@ -1,7 +1,7 @@
 package com.ina_apps.data.services_implemintation
 
-import com.ina_apps.model.classes.Category
-import com.ina_apps.model.classes.RestaurantInformation
+import com.ina_apps.model.database_classes.Category
+import com.ina_apps.model.database_classes.RestaurantInformation
 import com.ina_apps.model.services.RestaurantInformationService
 import com.mongodb.client.model.Updates.addToSet
 import com.mongodb.kotlin.client.coroutine.MongoDatabase

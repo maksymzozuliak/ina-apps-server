@@ -6,7 +6,7 @@ import java.util.concurrent.ConcurrentHashMap
 class RoomController() {
     private val members = ConcurrentHashMap<String, Member>()
 
-    fun onJoin(
+    suspend fun onJoin(
         userId: String,
         sessionId: String,
         socket: WebSocketSession
@@ -19,6 +19,7 @@ class RoomController() {
             sessionId = sessionId,
             socket = socket
         )
+        sendUpdatedDishesList("Ndsuhgdsgiudsihugdsihughduis")
     }
 
     suspend fun sendUpdatedDishesList(list: String) {

@@ -1,15 +1,16 @@
 package com.ina_apps.plugins.routes
 
-import com.ina_apps.model.classes.Order
-import com.ina_apps.model.classes.RestaurantInformation
-import com.ina_apps.model.classes.User
-import com.ina_apps.model.services.OrdersService
+import com.ina_apps.model.database_classes.User
+import com.ina_apps.model.database_classes.UserInformation
 import com.ina_apps.model.services.UserService
 import io.ktor.http.*
 import io.ktor.server.application.*
+import io.ktor.server.auth.*
+import io.ktor.server.auth.jwt.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import io.ktor.server.sessions.*
 
 fun Route.usersRouting(
     userService: UserService
@@ -27,31 +28,41 @@ fun Route.usersRouting(
             }
         }
 
-        put("/update") {
+        authenticate {
 
-            val user = call.receive<User>()
-            val result = userService.updateUser(user)
-            if (result) {
-                call.respond(HttpStatusCode.OK)
-            } else {
-                call.respond(HttpStatusCode.NotFound)
-            }
-        }
+            put("/updateInformation") {
 
-        get("/getById/{id}") {
+                val principal = call.principal<JWTPrincipal>()
+                val userId = principal?.getClaim("userId", String::class)
+                if (userId != null) {
 
-            val id = call.parameters["id"]
-            if (id != null) {
-                val user = userService.getUserById(id)
-                if (user != null) {
-                    call.respond(HttpStatusCode.OK, user)
+                    val userInformation = call.receive<UserInformation>()
+                    val result = userService.updateUserInformation(userId, userInformation)
+                    if (result) {
+                        call.respond(HttpStatusCode.OK)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound)
+                    }
                 } else {
-                    call.respond(HttpStatusCode.NotFound)
+                    call.respond(HttpStatusCode.BadRequest)
                 }
-            } else {
-                call.respond(HttpStatusCode.BadRequest)
+            }
+
+            get("/get") {
+
+                val principal = call.principal<JWTPrincipal>()
+                val userId = principal?.getClaim("userId", String::class)
+                if (userId != null) {
+                    val userInformation = userService.getUserInformationById(userId)
+                    if (userInformation != null) {
+                        call.respond(HttpStatusCode.OK, userInformation)
+                    } else {
+                        call.respond(HttpStatusCode.NotFound)
+                    }
+                } else {
+                    call.respond(HttpStatusCode.BadRequest)
+                }
             }
         }
-
     }
 }

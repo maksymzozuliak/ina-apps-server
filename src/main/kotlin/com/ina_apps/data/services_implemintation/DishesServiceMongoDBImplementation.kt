@@ -1,7 +1,8 @@
 package com.ina_apps.data.services_implemintation
 
-import com.ina_apps.model.classes.Dish
-import com.ina_apps.model.classes.User
+import com.ina_apps.model.database_classes.Dish
+import com.ina_apps.model.database_classes.User
+import com.ina_apps.model.database_classes.UserInformation
 import com.ina_apps.model.services.DishesService
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.firstOrNull
@@ -29,7 +30,7 @@ class DishesServiceMongoDBImplementation(database: MongoDatabase): DishesService
     override suspend fun getFavoriteForUser(id: String): List<Dish> {
 
         val user = userCollection.find(User::id eq id).firstOrNull()
-        val favoriteList: List<String> = user?.favoriteDishesIdList ?: listOf<String>()
+        val favoriteList: List<String> = user?.userInformation?.favoriteDishesIdList ?: listOf<String>()
         return dishesCollection.find(Dish::id `in` favoriteList).toList()
     }
 
