@@ -17,16 +17,16 @@ fun Route.usersRouting(
 ) {
     route("/users") {
 
-        post("/insert") {
-
-            val user = call.receive<User>()
-            val result = userService.insertUser(user)
-            if (result) {
-                call.respond(HttpStatusCode.Created)
-            } else {
-                call.respond(HttpStatusCode.BadRequest)
-            }
-        }
+//        post("/insert") {
+//
+//            val user = call.receive<User>()
+//            val result = userService.insertUser(user)
+//            if (result) {
+//                call.respond(HttpStatusCode.Created)
+//            } else {
+//                call.respond(HttpStatusCode.BadRequest)
+//            }
+//        }
 
         authenticate {
 

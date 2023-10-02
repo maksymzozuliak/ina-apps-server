@@ -27,6 +27,33 @@ fun Route.oneSignalRouting(service: OneSignalService) {
                 call.respond(HttpStatusCode.InternalServerError)
             }
         }
+
+        post("/sendText") {
+
+
+            val headings = call.parameters["headings"]
+            val contents = call.parameters["contents"]
+
+            if (headings == null || contents == null) {
+                call.respond(HttpStatusCode.BadRequest)
+                return@post
+            }
+
+            val notification = Notification(
+                includedSegments = listOf("All"),
+                contents = NotificationMessage(contents),
+                headings = NotificationMessage(headings),
+                appId = OneSignalService.ONESIGNAL_APP_ID
+            )
+
+            val successful = service.sendNotification(notification)
+
+            if(successful) {
+                call.respond(HttpStatusCode.OK)
+            } else {
+                call.respond(HttpStatusCode.InternalServerError)
+            }
+        }
     }
 
 }

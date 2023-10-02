@@ -10,6 +10,7 @@ import io.ktor.server.application.*
 import io.ktor.server.application.ApplicationCallPipeline.ApplicationPhase.Plugins
 import io.ktor.server.auth.*
 import io.ktor.server.auth.jwt.*
+import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.sessions.*
 import io.ktor.util.*
@@ -41,8 +42,9 @@ fun Application.configureSecurity(config: TokenConfig) {
     }
 
     intercept(Plugins) {
+        val uri = call.request.uri
         val apiKey = call.request.headers["api-key"]
-        if (apiKey != System.getenv("API_KEY")) {
+        if (apiKey != System.getenv("API_KEY") && !uri.contains("/poster")) {
             call.respond(HttpStatusCode.Forbidden)
             return@intercept
         }

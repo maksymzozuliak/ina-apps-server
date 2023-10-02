@@ -3,24 +3,25 @@ package com.ina_apps.model.database_classes
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
-
 @Serializable
 data class RestaurantInformation(
 
     @BsonId
     val id: String? = ObjectId().toString(),
-    val name: String,
-    val address: String,
-    val facebookURL: String?,
-    val instagramURL: String?,
-    val siteURL: String?,
-    val latitude: Float,
-    val longitude: Float,
-    val zoom: Float,
-    val number: String,
-    val schedule: String,
-    val deliverySettings: DeliverySettings,
-    val category: List<Category>?
+    val account: String,
+    val accessToken: String,
+    val ownerInfo: OwnerInfo,
+    val name: String? = null,
+    val address: String?= null,
+    val facebookURL: String?= null,
+    val instagramURL: String?= null,
+    val siteURL: String?= null,
+    val latitude: Float?= null,
+    val longitude: Float?= null,
+    val zoom: Float?= null,
+    val number: String?= null,
+    val deliverySettings: DeliverySettings?= null,
+    val category: List<Category>?= null
 )
 
 @Serializable
@@ -41,3 +42,14 @@ data class DeliverySettings(
     val price: Float,
     val nearestTimeInMinutes: Int
 )
+
+@Serializable
+data class OwnerInfo(
+    val city: String,
+    val companyName: String,
+    val country: String,
+    val email: String,
+    val name: String,
+    val phone: String
+)
+

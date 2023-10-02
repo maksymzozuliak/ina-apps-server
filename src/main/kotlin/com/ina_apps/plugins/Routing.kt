@@ -4,6 +4,9 @@ import com.google.auth.oauth2.GoogleCredentials
 import com.google.cloud.storage.StorageOptions
 import com.ina_apps.data.services_implemintation.*
 import com.ina_apps.plugins.routes.*
+import com.ina_apps.plugins.routes.poster.accessTokenRouting
+import com.ina_apps.plugins.routes.poster.ordersRoutingPoster
+import com.ina_apps.poster.orders.PosterOrderService
 import com.ina_apps.room.RegistrationRoomController
 import com.ina_apps.room.RoomController
 import com.ina_apps.utils.EmailService
@@ -32,6 +35,8 @@ fun Application.configureRouting(
     val restaurantInformationService = RestaurantInformationServiceMongoDBImplementation(database)
     val userService = UserServiceMongoDBImplementation(database)
 
+    val posterOrderService = PosterOrderService(client)
+
     val emailService = EmailService(restaurantInformationService)
 
     val registrationRoomController = RegistrationRoomController()
@@ -54,5 +59,12 @@ fun Application.configureRouting(
         menuSocketRouting(RoomController())
         oneSignalRouting(oneSignalService)
         authRouting(userService, hashingService, tokenService, tokenConfig, emailService,registrationRoomController)
+
+        //Poster
+        route("/poster") {
+
+            accessTokenRouting(restaurantInformationService, client, emailService)
+            ordersRoutingPoster(posterOrderService)
+        }
     }
 }

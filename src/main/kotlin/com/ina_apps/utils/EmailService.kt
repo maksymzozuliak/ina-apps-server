@@ -1,14 +1,17 @@
 package com.ina_apps.utils
 
+import com.ina_apps.model.database_classes.RestaurantInformation
 import com.ina_apps.model.services.RestaurantInformationService
+import com.ina_apps.poster.oauth2.AccessTokenResponse
 import org.apache.commons.mail.DefaultAuthenticator
 import org.apache.commons.mail.HtmlEmail
 import java.io.File
+import java.lang.NullPointerException
 import java.util.concurrent.ConcurrentHashMap
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
-class EmailService(val restaurantInformationService: RestaurantInformationService) {
+class EmailService(private val restaurantInformationService: RestaurantInformationService) {
 
     private val executorService = Executors.newScheduledThreadPool(1)
 
@@ -28,10 +31,10 @@ class EmailService(val restaurantInformationService: RestaurantInformationServic
         return verificationCode
     }
 
-    suspend fun sendVerificationEmail(targetEmail: String, restaurantId: String) {
+    suspend fun sendNewSubscriberEmail( restaurantInformation: RestaurantInformation) {
 
-        val restaurant = restaurantInformationService.getRestaurantInformationById(restaurantId)
-        if (restaurant != null) {
+        try {
+
             val email = HtmlEmail()
             email.apply {
                 hostName = "smtp.googlemail.com"
@@ -42,25 +45,67 @@ class EmailService(val restaurantInformationService: RestaurantInformationServic
                         System.getenv("VERIFICATION_EMAIL_PASSWORD")
                     )
                 )
-                setFrom(System.getenv("VERIFICATION_EMAIL"), restaurant.name)
+                setFrom(System.getenv("VERIFICATION_EMAIL"), "I&A Apps")
                 isSSLOnConnect = true
-                subject = "Verification"
+                subject = "New subscription"
                 setHtmlMsg(
                     readAndReplacePlaceholder(
-                        filePath = "src/main/kotlin/com/ina_apps/res/VerificationEmail.html",
+                        filePath = "src/main/kotlin/com/ina_apps/res/NewSubscriptionEmail.html",
                         pair = arrayOf(
-                            Pair("*|RESTAURANT_NAME|*!", restaurant.name),
-                            Pair("*|VERIFICATION_CODE|*", generateCode(targetEmail)),
-                            Pair("*|FACEBOOK_LINK|*", restaurant.facebookURL ?: ""),
-                            Pair("*|INSTAGRAM_LINK|*", restaurant.instagramURL ?: ""),
-                            Pair("*|BOTTOM_INFO|*", "${restaurant.name}. ${restaurant.address}.")
+                            Pair("*|ACCOUNT_NAME|*", restaurantInformation.account),
+                            Pair("*|CITY|*", restaurantInformation.ownerInfo.city),
+                            Pair("*|COMPANY_NAME|*", restaurantInformation.ownerInfo.companyName),
+                            Pair("*|COUNTRY|*", restaurantInformation.ownerInfo.country),
+                            Pair("*|EMAIL|*", restaurantInformation.ownerInfo.email),
+                            Pair("*|OWNER_NAME|*", restaurantInformation.ownerInfo.name),
+                            Pair("*|PHONE|", restaurantInformation.ownerInfo.phone),
+                            Pair("*|DATABASE_ID|*",restaurantInformation.id?: "Not created"),
                         )
                     )
                 )
-                addTo(targetEmail)
+                addTo("inaapps.contact@gmail.com")
             }
             email.send()
-        }
+
+        } catch (e: NullPointerException) {}
+    }
+
+    suspend fun sendVerificationEmail(targetEmail: String, restaurantId: String) {
+
+        try {
+
+            val restaurant = restaurantInformationService.getRestaurantInformationById(restaurantId)
+            if (restaurant != null) {
+                val email = HtmlEmail()
+                email.apply {
+                    hostName = "smtp.googlemail.com"
+                    setSmtpPort(465)
+                    setAuthenticator(
+                        DefaultAuthenticator(
+                            System.getenv("VERIFICATION_EMAIL"),
+                            System.getenv("VERIFICATION_EMAIL_PASSWORD")
+                        )
+                    )
+                    setFrom(System.getenv("VERIFICATION_EMAIL"), restaurant.name)
+                    isSSLOnConnect = true
+                    subject = "Verification"
+                    setHtmlMsg(
+                        readAndReplacePlaceholder(
+                            filePath = "src/main/kotlin/com/ina_apps/res/VerificationEmail.html",
+                            pair = arrayOf(
+                                Pair("*|RESTAURANT_NAME|*!", restaurant.name!!),
+                                Pair("*|VERIFICATION_CODE|*", generateCode(targetEmail)),
+                                Pair("*|FACEBOOK_LINK|*", restaurant.facebookURL ?: ""),
+                                Pair("*|INSTAGRAM_LINK|*", restaurant.instagramURL ?: ""),
+                                Pair("*|BOTTOM_INFO|*", "${restaurant.name}. ${restaurant.address}.")
+                            )
+                        )
+                    )
+                    addTo(targetEmail)
+                }
+                email.send()
+            }
+        } catch (e: NullPointerException) {}
     }
 
     fun verifyCode(email: String, code: String): Boolean {

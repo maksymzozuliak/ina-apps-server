@@ -20,7 +20,6 @@ class OneSignalServiceImpl(
                 header("Authorization", "Basic $apiKey")
                 setBody(notification)
             }
-            println("Tagggg $response")
             true
         } catch(e: Exception) {
             e.printStackTrace()

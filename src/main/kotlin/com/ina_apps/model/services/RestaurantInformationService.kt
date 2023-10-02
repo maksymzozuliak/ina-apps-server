@@ -12,4 +12,6 @@ interface RestaurantInformationService {
     suspend fun getRestaurantInformationById( id: String) : RestaurantInformation?
 
     suspend fun addCategory( id: String, category: Category) : Boolean
+
+    suspend fun getRestaurantInformationByAccountName( accountName: String): RestaurantInformation?
 }
