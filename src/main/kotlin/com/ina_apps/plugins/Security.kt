@@ -19,7 +19,7 @@ fun Application.configureSecurity(config: TokenConfig) {
 
     authentication {
         jwt {
-            realm = "Muscle Mate"
+            realm = "InA Apps"
             verifier(
                 JWT
                     .require(Algorithm.HMAC256(config.secret))
@@ -38,16 +38,15 @@ fun Application.configureSecurity(config: TokenConfig) {
     }
 
     install(CORS) {
-        allowMethod(HttpMethod.Post)
-        allowMethod(HttpMethod.Get)
-        allowHeader("api-key")
-//        allowHost()
-        anyHost() // @TODO: Don't do this in production if possible. Try to limit it.
+
+        anyHost() // TODO()
+
     }
 
     intercept(Plugins) {
         val uri = call.request.uri
         val apiKey = call.request.headers["api-key"]
+        println("TAGG " + apiKey)
         if (apiKey != System.getenv("API_KEY") && !uri.contains("/poster")) {
             call.respond(HttpStatusCode.Forbidden)
             return@intercept

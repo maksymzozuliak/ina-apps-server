@@ -10,6 +10,7 @@ import io.ktor.server.application.*
 import io.ktor.server.request.*
 import io.ktor.server.response.*
 import io.ktor.server.routing.*
+import org.litote.kmongo.json
 
 fun Route.oneSignalRouting(service: OneSignalService) {
 
@@ -29,7 +30,6 @@ fun Route.oneSignalRouting(service: OneSignalService) {
         }
 
         post("/sendText") {
-
 
             val headings = call.parameters["headings"]
             val contents = call.parameters["contents"]
