@@ -40,7 +40,10 @@ fun Application.configureSecurity(config: TokenConfig) {
     install(CORS) {
 
         anyHost() // TODO()
-
+        allowMethod(HttpMethod.Get)
+        allowMethod(HttpMethod.Post)
+        allowMethod(HttpMethod.Put)
+        allowHeadersPrefixed("api-key")
     }
 
     intercept(Plugins) {
