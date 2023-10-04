@@ -56,7 +56,6 @@ fun Application.configureRouting(
         dishesRouting(dishesService, storage)
         restaurantInformationRouting(restaurantInformationService, storage)
         usersRouting(userService)
-        menuSocketRouting(RoomController())
         oneSignalRouting(oneSignalService)
         authRouting(userService, hashingService, tokenService, tokenConfig, emailService,registrationRoomController)
 
