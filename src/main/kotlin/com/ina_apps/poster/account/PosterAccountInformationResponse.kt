@@ -1,10 +1,10 @@
-package com.ina_apps.poster.oauth2
+package com.ina_apps.poster.account
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class AccessTokenResponse(
+data class PosterAccountInformationResponse(
     @SerialName("access_token")
     val accessToken: String,
     @SerialName("account_number")

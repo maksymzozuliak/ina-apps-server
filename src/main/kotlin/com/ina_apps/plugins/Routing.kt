@@ -6,6 +6,8 @@ import com.ina_apps.data.services_implemintation.*
 import com.ina_apps.plugins.routes.*
 import com.ina_apps.plugins.routes.poster.accessTokenRouting
 import com.ina_apps.plugins.routes.poster.ordersRoutingPoster
+import com.ina_apps.plugins.routes.poster.restaurantInformationRoutingPoster
+import com.ina_apps.poster.account.PosterAccountService
 import com.ina_apps.poster.orders.PosterOrderService
 import com.ina_apps.room.RegistrationRoomController
 import com.ina_apps.room.RoomController
@@ -35,9 +37,10 @@ fun Application.configureRouting(
     val restaurantInformationService = RestaurantInformationServiceMongoDBImplementation(database)
     val userService = UserServiceMongoDBImplementation(database)
 
-    val posterOrderService = PosterOrderService(client)
-
     val emailService = EmailService(restaurantInformationService)
+
+    val posterOrderService = PosterOrderService(client)
+    val posterAccountService = PosterAccountService(restaurantInformationService, client, emailService)
 
     val registrationRoomController = RegistrationRoomController()
 
@@ -62,7 +65,8 @@ fun Application.configureRouting(
         //Poster
         route("/poster") {
 
-            accessTokenRouting(restaurantInformationService, client, emailService)
+            accessTokenRouting(posterAccountService)
+            restaurantInformationRoutingPoster(restaurantInformationService, posterAccountService)
             ordersRoutingPoster(posterOrderService)
         }
     }

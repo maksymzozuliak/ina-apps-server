@@ -49,8 +49,7 @@ fun Application.configureSecurity(config: TokenConfig) {
     intercept(Plugins) {
         val uri = call.request.uri
         val apiKey = call.request.headers["api-key"]
-        println("TAGG " + apiKey)
-        if (apiKey != System.getenv("API_KEY") && !uri.contains("/poster")) {
+        if (apiKey != System.getenv("API_KEY") && !uri.contains("/poster/getAccessToken")) {
             call.respond(HttpStatusCode.Forbidden)
             return@intercept
         }

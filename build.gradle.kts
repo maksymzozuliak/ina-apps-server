@@ -72,3 +72,4 @@ dependencies {
     //CORS
     implementation("io.ktor:ktor-server-cors:$ktor_version")
 }
+

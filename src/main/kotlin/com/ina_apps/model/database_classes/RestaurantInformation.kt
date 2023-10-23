@@ -10,6 +10,7 @@ data class RestaurantInformation(
     val id: String? = ObjectId().toString(),
     val account: String,
     val accessToken: String,
+    val accountNumber: String,
     val ownerInfo: OwnerInfo,
     val name: String? = null,
     val address: String?= null,
@@ -19,7 +20,7 @@ data class RestaurantInformation(
     val latitude: Float?= null,
     val longitude: Float?= null,
     val zoom: Float?= null,
-    val number: String?= null,
+    val phoneNumber: String?= null,
     val deliverySettings: DeliverySettings?= null,
     val category: List<Category>?= null
 )

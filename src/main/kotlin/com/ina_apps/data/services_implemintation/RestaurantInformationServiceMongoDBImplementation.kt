@@ -36,6 +36,11 @@ class RestaurantInformationServiceMongoDBImplementation(database: MongoDatabase)
         return restaurantInformationCollection.find(RestaurantInformation::account eq accountName).firstOrNull()
     }
 
+    override suspend fun getRestaurantInformationIdByAccountNumber(accountNumber: String): String? {
+
+        return restaurantInformationCollection.find(RestaurantInformation::accountNumber eq accountNumber).firstOrNull()?.id
+    }
+
 
     override suspend fun addCategory(id: String, category: Category): Boolean {
 

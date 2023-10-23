@@ -2,7 +2,6 @@ package com.ina_apps.utils
 
 import com.ina_apps.model.database_classes.RestaurantInformation
 import com.ina_apps.model.services.RestaurantInformationService
-import com.ina_apps.poster.oauth2.AccessTokenResponse
 import org.apache.commons.mail.DefaultAuthenticator
 import org.apache.commons.mail.HtmlEmail
 import java.io.File
