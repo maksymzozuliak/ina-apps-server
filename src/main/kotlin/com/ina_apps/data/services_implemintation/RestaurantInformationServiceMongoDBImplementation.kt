@@ -1,11 +1,14 @@
 package com.ina_apps.data.services_implemintation
 
 import com.ina_apps.model.database_classes.Category
+import com.ina_apps.model.database_classes.DeliverySettings
+import com.ina_apps.model.database_classes.PosterInformation
 import com.ina_apps.model.database_classes.RestaurantInformation
 import com.ina_apps.model.services.RestaurantInformationService
-import com.mongodb.client.model.Updates.addToSet
+import com.mongodb.client.model.Updates.*
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.firstOrNull
+import org.litote.kmongo.div
 import org.litote.kmongo.eq
 
 class RestaurantInformationServiceMongoDBImplementation(database: MongoDatabase): RestaurantInformationService {
@@ -22,7 +25,7 @@ class RestaurantInformationServiceMongoDBImplementation(database: MongoDatabase)
 
         return if( restaurantInformation.id != null) {
             val updateResult = restaurantInformationCollection.replaceOne(RestaurantInformation::id eq restaurantInformation.id, restaurantInformation)
-            updateResult.wasAcknowledged() && updateResult.modifiedCount > 0
+            updateResult.wasAcknowledged() /* && updateResult.modifiedCount > 0 */
         } else false
     }
 
@@ -33,12 +36,24 @@ class RestaurantInformationServiceMongoDBImplementation(database: MongoDatabase)
 
     override suspend fun getRestaurantInformationByAccountName(accountName: String): RestaurantInformation? {
 
-        return restaurantInformationCollection.find(RestaurantInformation::account eq accountName).firstOrNull()
+        return restaurantInformationCollection.find(RestaurantInformation::posterInformation / PosterInformation::account eq accountName).firstOrNull()
     }
 
     override suspend fun getRestaurantInformationIdByAccountNumber(accountNumber: String): String? {
 
-        return restaurantInformationCollection.find(RestaurantInformation::accountNumber eq accountNumber).firstOrNull()?.id
+        return restaurantInformationCollection.find(RestaurantInformation::posterInformation / PosterInformation::accountNumber eq accountNumber).firstOrNull()?.id
+    }
+
+    override suspend fun updateDeliverySettings(id: String, deliverySettings: DeliverySettings): Boolean {
+
+        val update = combine(
+            set("deliverySettings.startHour", deliverySettings.startHour),
+            set("deliverySettings.lastHour", deliverySettings.lastHour),
+            set("deliverySettings.price", deliverySettings.price),
+            set("deliverySettings.minPriceForFree", deliverySettings.minPriceForFree)
+        )
+        val updateResult = restaurantInformationCollection.updateOne(RestaurantInformation::id eq id, update)
+        return updateResult.wasAcknowledged()
     }
 
 

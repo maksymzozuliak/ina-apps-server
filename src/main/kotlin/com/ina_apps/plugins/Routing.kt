@@ -5,9 +5,11 @@ import com.google.cloud.storage.StorageOptions
 import com.ina_apps.data.services_implemintation.*
 import com.ina_apps.plugins.routes.*
 import com.ina_apps.plugins.routes.poster.accessTokenRouting
+import com.ina_apps.plugins.routes.poster.menuRoutingPoster
 import com.ina_apps.plugins.routes.poster.ordersRoutingPoster
 import com.ina_apps.plugins.routes.poster.restaurantInformationRoutingPoster
 import com.ina_apps.poster.account.PosterAccountService
+import com.ina_apps.poster.menu.PosterMenuService
 import com.ina_apps.poster.orders.PosterOrderService
 import com.ina_apps.room.RegistrationRoomController
 import com.ina_apps.room.RoomController
@@ -41,6 +43,7 @@ fun Application.configureRouting(
 
     val posterOrderService = PosterOrderService(client)
     val posterAccountService = PosterAccountService(restaurantInformationService, client, emailService)
+    val posterMenuService = PosterMenuService(client, dishesService)
 
     val registrationRoomController = RegistrationRoomController()
 
@@ -66,8 +69,9 @@ fun Application.configureRouting(
         route("/poster") {
 
             accessTokenRouting(posterAccountService)
-            restaurantInformationRoutingPoster(restaurantInformationService, posterAccountService)
+            restaurantInformationRoutingPoster(restaurantInformationService)
             ordersRoutingPoster(posterOrderService)
+            menuRoutingPoster(posterMenuService, restaurantInformationService)
         }
     }
 }

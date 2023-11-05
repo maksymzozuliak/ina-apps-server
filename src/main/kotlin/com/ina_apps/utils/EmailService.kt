@@ -51,13 +51,13 @@ class EmailService(private val restaurantInformationService: RestaurantInformati
                     readAndReplacePlaceholder(
                         filePath = "src/main/kotlin/com/ina_apps/res/NewSubscriptionEmail.html",
                         pair = arrayOf(
-                            Pair("*|ACCOUNT_NAME|*", restaurantInformation.account),
-                            Pair("*|CITY|*", restaurantInformation.ownerInfo.city),
-                            Pair("*|COMPANY_NAME|*", restaurantInformation.ownerInfo.companyName),
-                            Pair("*|COUNTRY|*", restaurantInformation.ownerInfo.country),
-                            Pair("*|EMAIL|*", restaurantInformation.ownerInfo.email),
-                            Pair("*|OWNER_NAME|*", restaurantInformation.ownerInfo.name),
-                            Pair("*|PHONE|", restaurantInformation.ownerInfo.phone),
+                            Pair("*|ACCOUNT_NAME|*", restaurantInformation.posterInformation!!.account),
+                            Pair("*|CITY|*", restaurantInformation.posterInformation.ownerInfo.city),
+                            Pair("*|COMPANY_NAME|*", restaurantInformation.posterInformation.ownerInfo.companyName),
+                            Pair("*|COUNTRY|*", restaurantInformation.posterInformation.ownerInfo.country),
+                            Pair("*|EMAIL|*", restaurantInformation.posterInformation.ownerInfo.email),
+                            Pair("*|OWNER_NAME|*", restaurantInformation.posterInformation.ownerInfo.name),
+                            Pair("*|PHONE|", restaurantInformation.posterInformation.ownerInfo.phone),
                             Pair("*|DATABASE_ID|*",restaurantInformation.id?: "Not created"),
                         )
                     )

@@ -36,4 +36,20 @@ fun Route.accessTokenRouting(
             call.respond(HttpStatusCode.Conflict)
         }
     }
+
+    get("/getRestaurantId") {
+
+        val code = call.parameters["code"]
+        if (code == null) {
+            call.respond(HttpStatusCode.BadRequest)
+            return@get
+        }
+
+        val restaurantId = posterAccountService.getRestaurantIdFromCode(code)
+        if (restaurantId != null) {
+            call.respond(HttpStatusCode.OK, restaurantId)
+        } else {
+            call.respond(HttpStatusCode.NotFound)
+        }
+    }
 }

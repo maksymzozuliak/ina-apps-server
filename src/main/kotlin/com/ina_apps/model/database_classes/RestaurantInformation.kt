@@ -8,10 +8,7 @@ data class RestaurantInformation(
 
     @BsonId
     val id: String? = ObjectId().toString(),
-    val account: String,
-    val accessToken: String,
-    val accountNumber: String,
-    val ownerInfo: OwnerInfo,
+    val posterInformation: PosterInformation? = null,
     val name: String? = null,
     val address: String?= null,
     val facebookURL: String?= null,
@@ -23,6 +20,16 @@ data class RestaurantInformation(
     val phoneNumber: String?= null,
     val deliverySettings: DeliverySettings?= null,
     val category: List<Category>?= null
+)
+
+@Serializable
+data class PosterInformation(
+
+    val account: String,
+    val accessToken: String,
+    val accountNumber: String,
+    val ownerInfo: OwnerInfo,
+    val paymentMethodId: Int
 )
 
 @Serializable
@@ -38,10 +45,11 @@ data class Category(
 @Serializable
 data class DeliverySettings(
 
-    val startHour: Int,
-    val lastHour: Int,
+    val startHour: String,
+    val lastHour: String,
     val price: Float,
-    val nearestTimeInMinutes: Int
+    val nearestTimeInMinutes: Int? = null,
+    val minPriceForFree: Float,
 )
 
 @Serializable

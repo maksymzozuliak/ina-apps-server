@@ -1,6 +1,7 @@
 package com.ina_apps.model.services
 
 import com.ina_apps.model.database_classes.Category
+import com.ina_apps.model.database_classes.DeliverySettings
 import com.ina_apps.model.database_classes.RestaurantInformation
 
 interface RestaurantInformationService {
@@ -16,4 +17,6 @@ interface RestaurantInformationService {
     suspend fun getRestaurantInformationByAccountName( accountName: String): RestaurantInformation?
 
     suspend fun getRestaurantInformationIdByAccountNumber( accountNumber: String): String?
+
+    suspend fun updateDeliverySettings( id: String, deliverySettings: DeliverySettings): Boolean
 }

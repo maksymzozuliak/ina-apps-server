@@ -43,6 +43,7 @@ fun Application.configureSecurity(config: TokenConfig) {
         allowMethod(HttpMethod.Get)
         allowMethod(HttpMethod.Post)
         allowMethod(HttpMethod.Put)
+        allowHeader(HttpHeaders.ContentType)
         allowHeadersPrefixed("api-key")
     }
 

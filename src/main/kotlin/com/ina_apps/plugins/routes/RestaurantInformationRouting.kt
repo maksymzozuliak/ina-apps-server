@@ -48,7 +48,7 @@ fun Route.restaurantInformationRouting(
             if (id != null) {
                 val restaurantInformation = restaurantInformationService.getRestaurantInformationById(id)
                 if (restaurantInformation != null) {
-                    call.respond(HttpStatusCode.OK, restaurantInformation)
+                    call.respond(HttpStatusCode.OK, restaurantInformation.copy(posterInformation = null))
                 } else {
                     call.respond(HttpStatusCode.NotFound)
                 }

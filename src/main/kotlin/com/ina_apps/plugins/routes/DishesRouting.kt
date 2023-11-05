@@ -50,7 +50,7 @@ fun Route.dishesRouting(
                     dish!!.copy(imageName = image!!.originalFileName)
                 )
                 image!!.dispose()
-                if (result) {
+                if (result != null) {
                     call.respond(HttpStatusCode.Created)
                 } else {
                     call.respond(HttpStatusCode.BadRequest)

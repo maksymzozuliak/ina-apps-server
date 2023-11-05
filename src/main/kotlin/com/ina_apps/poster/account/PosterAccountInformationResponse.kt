@@ -20,7 +20,8 @@ data class User(
     val id: Int,
     val name: String,
     @SerialName("role_id")
-    val roleId: Int
+    val roleId: Int,
+    val type: Int? = null
 )
 
 @Serializable
