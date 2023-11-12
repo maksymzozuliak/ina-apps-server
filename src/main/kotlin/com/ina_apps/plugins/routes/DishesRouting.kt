@@ -21,44 +21,44 @@ fun Route.dishesRouting(
 ) {
     route("/dishes") {
 
-        post("/insert") {
-
-            val multipart = call.receiveMultipart()
-            var dish: Dish? = null
-            var image: PartData.FileItem? = null
-
-            multipart.forEachPart { part ->
-                if (part is PartData.FileItem) {
-
-                    image = part
-                } else if (part is PartData.FormItem) {
-                    if (part.name == "dish") {
-                        val dishJson = part.value
-                        dish = Json.decodeFromString(dishJson)
-                    }
-                    part.dispose()
-                }
-            }
-            if (dish != null && image != null) {
-                val bucket = getBucketOrCreate(dish!!.restaurantId, storage)
-                val blobId = BlobId.of(bucket.name, image!!.originalFileName)
-                val blobInfo = BlobInfo.newBuilder(blobId)
-                    .setContentType(image!!.contentType?.contentType)
-                    .build()
-                storage.createFrom(blobInfo, image!!.streamProvider.invoke())
-                val result = dishesService.insertDish(
-                    dish!!.copy(imageName = image!!.originalFileName)
-                )
-                image!!.dispose()
-                if (result != null) {
-                    call.respond(HttpStatusCode.Created)
-                } else {
-                    call.respond(HttpStatusCode.BadRequest)
-                }
-            } else if (image != null) {
-                image!!.dispose()
-            }
-        }
+//        post("/insert") {
+//
+//            val multipart = call.receiveMultipart()
+//            var dish: Dish? = null
+//            var image: PartData.FileItem? = null
+//
+//            multipart.forEachPart { part ->
+//                if (part is PartData.FileItem) {
+//
+//                    image = part
+//                } else if (part is PartData.FormItem) {
+//                    if (part.name == "dish") {
+//                        val dishJson = part.value
+//                        dish = Json.decodeFromString(dishJson)
+//                    }
+//                    part.dispose()
+//                }
+//            }
+//            if (dish != null && image != null) {
+//                val bucket = getBucketOrCreate(dish!!.restaurantId, storage)
+//                val blobId = BlobId.of(bucket.name, image!!.originalFileName)
+//                val blobInfo = BlobInfo.newBuilder(blobId)
+//                    .setContentType(image!!.contentType?.contentType)
+//                    .build()
+//                storage.createFrom(blobInfo, image!!.streamProvider.invoke())
+//                val result = dishesService.insertDish(
+//                    dish!!.copy(imageName = image!!.originalFileName)
+//                )
+//                image!!.dispose()
+//                if (result != null) {
+//                    call.respond(HttpStatusCode.Created)
+//                } else {
+//                    call.respond(HttpStatusCode.BadRequest)
+//                }
+//            } else if (image != null) {
+//                image!!.dispose()
+//            }
+//        }
 
         get("/getForRestaurant/{restaurantId}") {
 

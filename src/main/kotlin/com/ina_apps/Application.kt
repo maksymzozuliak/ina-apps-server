@@ -8,16 +8,17 @@ import com.zozuliak.security.token.JwtTokenService
 import com.zozuliak.security.token.TokenConfig
 import io.ktor.client.*
 import io.ktor.client.engine.cio.*
-import io.ktor.serialization.kotlinx.json.*
 import io.ktor.server.application.*
 import io.ktor.server.engine.*
 import io.ktor.server.netty.*
 import io.ktor.client.plugins.contentnegotiation.*
 import io.ktor.http.*
+import io.ktor.serialization.jackson.*
 import io.ktor.server.plugins.cors.routing.*
 import org.apache.commons.mail.DefaultAuthenticator
 import org.apache.commons.mail.HtmlEmail
 import org.apache.commons.mail.SimpleEmail
+import org.litote.kmongo.json
 import java.io.File
 
 fun main() {
@@ -39,7 +40,7 @@ fun Application.module() {
 
     val client = HttpClient(CIO) {
         install(ContentNegotiation) {
-            json()
+            jackson()
         }
     }
 

@@ -2,11 +2,8 @@ package com.ina_apps.data.services_implemintation
 
 import com.ina_apps.model.database_classes.*
 import com.ina_apps.model.services.DishesService
-import com.mongodb.client.model.DeleteOptions
-import com.mongodb.client.model.FindOneAndUpdateOptions
-import com.mongodb.client.model.ReturnDocument
-import com.mongodb.client.model.UpdateOptions
-import com.mongodb.client.model.Updates
+import com.ina_apps.poster.menu.Source
+import com.mongodb.client.model.*
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
@@ -54,15 +51,50 @@ class DishesServiceMongoDBImplementation(database: MongoDatabase): DishesService
         return dishesCollection.findOneAndUpdate(Dish::posterProductId eq posterProductId, update, options = FindOneAndUpdateOptions().returnDocument(ReturnDocument.AFTER))
     }
 
-    override suspend fun deleteRedundantData(idList: List<Long>) {
+    override suspend fun deleteRedundantData(restaurantId: String, idList: List<Long>) {
 
-        dishesCollection.deleteMany(Dish::posterProductId nin idList)
+        val filter = and(
+            Dish::restaurantId eq restaurantId,
+            Dish::posterProductId nin idList
+        )
+
+        dishesCollection.deleteMany(filter)
 
     }
 
     override suspend fun getDishesCount(): Long {
 
         return dishesCollection.countDocuments()
+    }
+
+    override suspend fun getSourcesList(id: String): List<Source> {
+
+        val dishes = getDishesForRestaurant(id)
+        val sources = mutableSetOf<Source>()
+        dishes.forEach() {dish ->
+            sources.addAll(dish.poster?.sources ?: listOf())
+        }
+        return sources.toList()
+    }
+
+    override suspend fun replaceAll(restaurantId: String, dishes: List<Dish>): Boolean {
+
+        dishesCollection.deleteMany(Dish::restaurantId eq restaurantId)
+        val result = dishesCollection.insertMany(dishes)
+        return result.wasAcknowledged()
+    }
+
+    override suspend fun updateOrCreate(restaurantId: String, dish: Dish): String {
+
+        val findAndReplaceOptions = FindOneAndReplaceOptions()
+            .upsert(true)
+            .returnDocument(ReturnDocument.AFTER)
+
+        val result = dishesCollection.findOneAndReplace(Dish::posterProductId eq dish.posterProductId, dish, findAndReplaceOptions)
+        val id = result?.let {
+            it.id
+        } ?: dishesCollection.find(Dish::posterProductId eq dish.posterProductId).firstOrNull()?.id
+        return id!!
     }
 
 }

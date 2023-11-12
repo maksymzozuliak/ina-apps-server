@@ -34,6 +34,16 @@ fun Application.configureRouting(
 
     val oneSignalService = OneSignalServiceImpl(client, System.getenv("ONE_SIGNAL_REST_API_KEY"))
 
+    val jsonKey = System.getenv("GOOGLE_APPLICATION_CREDENTIALS")
+    val projectId = System.getenv("GOOGLE_PROJECT_ID")
+    val credentials = GoogleCredentials.fromStream(ByteArrayInputStream(jsonKey.toByteArray()))
+
+    val storage = StorageOptions.newBuilder()
+        .setCredentials(credentials)
+        .setProjectId(projectId)
+        .build()
+        .service
+
     val ordersService = OrderServiceMongoDBImplementation(database)
     val dishesService = DishesServiceMongoDBImplementation(database)
     val restaurantInformationService = RestaurantInformationServiceMongoDBImplementation(database)
@@ -43,18 +53,9 @@ fun Application.configureRouting(
 
     val posterOrderService = PosterOrderService(client)
     val posterAccountService = PosterAccountService(restaurantInformationService, client, emailService)
-    val posterMenuService = PosterMenuService(client, dishesService)
+    val posterMenuService = PosterMenuService(client, dishesService, storage)
 
     val registrationRoomController = RegistrationRoomController()
-
-    val jsonKey = System.getenv("GOOGLE_APPLICATION_CREDENTIALS")
-    val projectId = System.getenv("GOOGLE_PROJECT_ID")
-    val credentials = GoogleCredentials.fromStream(ByteArrayInputStream(jsonKey.toByteArray()))
-    val storage = StorageOptions.newBuilder()
-        .setCredentials(credentials)
-        .setProjectId(projectId)
-        .build()
-        .service
 
     routing {
 

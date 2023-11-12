@@ -2,6 +2,7 @@ package com.ina_apps.model.services
 
 import com.ina_apps.model.database_classes.Dish
 import com.ina_apps.model.database_classes.PosterDishInformation
+import com.ina_apps.poster.menu.Source
 
 interface DishesService {
 
@@ -15,7 +16,13 @@ interface DishesService {
 
     suspend fun updatePosterDishInformation(posterProductId: Long, posterDishInformation: PosterDishInformation) : Dish?
 
-    suspend fun deleteRedundantData(idList: List<Long>)
+    suspend fun deleteRedundantData(restaurantId: String, idList: List<Long>)
 
     suspend fun getDishesCount() : Long
+
+    suspend fun getSourcesList(id: String) : List<Source>
+
+    suspend fun replaceAll(restaurantId: String, dishes: List<Dish>): Boolean
+
+    suspend fun updateOrCreate(restaurantId: String, dish: Dish): String
 }
