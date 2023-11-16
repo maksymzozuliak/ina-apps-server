@@ -27,6 +27,8 @@ data class Dish(
     val isActive: Boolean? = null,
     val description: Map<String, String?>?= null,
     val additionalDishesId: List<String>? = null,
+    val modificators: List<ReducedModificator>? = null,
+    val groupModificators: List<ReducedGroupModificator>? = null,
     val image: ByteArray? = null
 )
 
@@ -37,11 +39,21 @@ enum class Special{
 
 @Serializable
 data class ReducedModificator(
-    val name: Map<String, String>?,
+    val modificatorId: String,
+    val modificatorName: Map<String, String>?,
     val price: Float,
     val isActive: Boolean?,
+    val image: ByteArray? = null
+)
 
-
+@Serializable
+data class ReducedGroupModificator(
+    val groupId: Int,
+    val name: String,
+    val type: Int,
+    val numMin: Int? = null,
+    val numMax: Int? = null,
+    val modificators: List<ReducedModificator>
 )
 
 @Serializable

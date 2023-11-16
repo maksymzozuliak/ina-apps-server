@@ -1,5 +1,6 @@
 package com.ina_apps.poster.menu
 
+import com.google.cloud.storage.Acl
 import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.Storage
@@ -7,12 +8,10 @@ import com.ina_apps.data.getBucketOrCreate
 import com.ina_apps.model.database_classes.Dish
 import com.ina_apps.model.database_classes.PosterDishInformation
 import com.ina_apps.model.services.DishesService
-import com.ina_apps.model.services.RestaurantInformationService
 import io.ktor.client.*
 import io.ktor.client.request.*
 import io.ktor.client.statement.*
 import io.ktor.http.*
-import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
 class PosterMenuService(
@@ -25,22 +24,53 @@ class PosterMenuService(
 
         return try {
             dishesService.deleteRedundantData(restaurantId, dishes.map { it.posterProductId })
-            val imageList = storage.list(restaurantId).values.map { it.name }.toMutableList()
-            val idList = mutableListOf<String>()
             val bucket = getBucketOrCreate(restaurantId, storage)
+            val fullImageList = storage.list(restaurantId).values.map { it.name }
+            val imageList = fullImageList.map { it.substringBefore("/") }.toMutableSet()
+            val idList = mutableListOf<String>()
             dishes.forEach { dish ->
-                val temp = dish.image
-                val id = dishesService.updateOrCreate(restaurantId, dish.copy(image = null))
+                val id = dishesService.updateOrCreate(restaurantId, dish.copy(
+                        image = null,
+                        modificators = dish.modificators?.map { it.copy(image = null) },
+                        groupModificators = dish.groupModificators?.map { group -> group.copy(modificators = group.modificators.map { it.copy(image = null) }) }
+                    )
+                )
                 idList.add(id)
-                if (temp != null) {
-                    val blobId = BlobId.of(bucket.name, id)
+                if (dish.image != null) {
+                    val folderBlobId = BlobId.of(bucket.name, "$id/")
+                    val folderBlobInfo = BlobInfo.newBuilder(folderBlobId).build()
+                    val folderBlob = storage.create(folderBlobInfo, byteArrayOf())
+                    val blobId = BlobId.of(bucket.name, "$id/$id")
                     val blobInfo = BlobInfo.newBuilder(blobId)
                         .setContentType("image")
+                        .setAcl(listOf(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER)))
                         .build()
                     storage.createFrom(blobInfo, dish.image.inputStream())
+                    dish.modificators?.forEach { modificator ->
+                        if (modificator.image != null) {
+                            val modificatorBlobId = BlobId.of(bucket.name, "$id/modificator${modificator.modificatorId}")
+                            val modificatorBlobInfo = BlobInfo.newBuilder(modificatorBlobId)
+                                .setContentType("image")
+                                .setAcl(listOf(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER)))
+                                .build()
+                            storage.createFrom(modificatorBlobInfo, modificator.image.inputStream())
+                        }
+                    }
+                    dish.groupModificators?.forEachIndexed { index, groupModificator ->
+                        groupModificator.modificators.forEach { modificator ->
+                            if (modificator.image != null) {
+                                val modificatorBlobId = BlobId.of(bucket.name, "$id/group$index/modificator${modificator.modificatorId}")
+                                val modificatorBlobInfo = BlobInfo.newBuilder(modificatorBlobId)
+                                    .setContentType("image")
+                                    .setAcl(listOf(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER)))
+                                    .build()
+                                storage.createFrom(modificatorBlobInfo, modificator.image.inputStream())
+                            }
+                        }
+                    }
                 }
             }
-            imageList.removeAll(idList)
+            imageList.removeAll(idList.toSet())
             imageList.forEach { id ->
                 val blobId = BlobId.of(bucket.name, id)
                 storage.delete(blobId)

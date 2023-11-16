@@ -173,7 +173,7 @@ data class ModificatorSpot(
 )
 
 @Serializable
-data class DishModificationGroup(
+data class  DishModificationGroup(
     @SerialName("dish_modification_group_id")
     val dishModificationGroupId: Int,
     @SerialName("name")

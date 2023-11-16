@@ -1,9 +1,6 @@
 package com.ina_apps.data
 
-import com.google.cloud.storage.Bucket
-import com.google.cloud.storage.BucketInfo
-import com.google.cloud.storage.Storage
-import com.google.cloud.storage.StorageClass
+import com.google.cloud.storage.*
 
 fun getBucketOrCreate(name: String, storage: Storage): Bucket {
     var bucket: Bucket? = storage.get(name)
@@ -13,6 +10,7 @@ fun getBucketOrCreate(name: String, storage: Storage): Bucket {
             .setLocation("EU")
             .build()
         bucket = storage.create(bucketInfo)
+        storage.updateAcl(name, Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER));
     }
     return bucket!!
 }
