@@ -1,6 +1,15 @@
 package com.ina_apps
 
+import com.ina_apps.data.services_implemintation.DishesServiceMongoDBImplementation
+import com.ina_apps.data.services_implemintation.OrderServiceMongoDBImplementation
+import com.ina_apps.data.services_implemintation.RestaurantInformationServiceMongoDBImplementation
+import com.ina_apps.data.services_implemintation.UserServiceMongoDBImplementation
 import com.ina_apps.plugins.*
+import com.ina_apps.poster.account.PosterAccountService
+import com.ina_apps.poster.menu.PosterMenuService
+import com.ina_apps.poster.orders.PosterOrderService
+import com.ina_apps.room.RegistrationRoomController
+import com.ina_apps.utils.CustomTimer
 import com.ina_apps.utils.EmailService
 import com.mongodb.kotlin.client.coroutine.MongoClient
 import com.zozuliak.security.hashing.SHA256HashingService
@@ -44,11 +53,18 @@ fun Application.module() {
         }
     }
 
+    val customTimer = CustomTimer()
+
     // MongoDB
     val uri = System.getenv("CONNECTION_STRING_URI")
     val mongoDBClient = MongoClient.create(uri)
     val database = mongoDBClient.getDatabase("InA-Database")
+    val backupDatabase = mongoDBClient.getDatabase("Backup")
 
+//    configureBackup(
+//        database = database,
+//        backupDatabase = backupDatabase,
+//        timer = customTimer)
     configureSecurity(tokenConfig)
     configureMonitoring()
     configureSerialization()
@@ -58,7 +74,8 @@ fun Application.module() {
         client = client,
         hashingService = hashingService,
         tokenService = tokenService,
-        tokenConfig = tokenConfig
+        tokenConfig = tokenConfig,
+        timer = customTimer
     )
 
 }

@@ -5,22 +5,6 @@ import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
 import java.time.LocalDateTime
 
-
-//String? userId;
-//  String? name;
-//  String? phoneNumber;
-//  Address? address;
-//  List<DishForOrder>? dishListInOrder;
-//  String comment;
-//  Payment payment;
-//  String? change;
-//  int countOfCutlery;
-//  Courier courier;
-//  String? date;
-//  String? time;
-//  bool delivery;
-//  String? forTime;
-//  int? number;/
 @Serializable
 data class Order(
 

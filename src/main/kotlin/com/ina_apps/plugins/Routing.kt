@@ -13,6 +13,7 @@ import com.ina_apps.poster.menu.PosterMenuService
 import com.ina_apps.poster.orders.PosterOrderService
 import com.ina_apps.room.RegistrationRoomController
 import com.ina_apps.room.RoomController
+import com.ina_apps.utils.CustomTimer
 import com.ina_apps.utils.EmailService
 import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import com.zozuliak.security.hashing.HashingService
@@ -22,14 +23,20 @@ import io.ktor.client.*
 import io.ktor.server.application.*
 import io.ktor.server.auth.*
 import io.ktor.server.routing.*
+import kotlinx.coroutines.DelicateCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.launch
 import java.io.ByteArrayInputStream
 
+@OptIn(DelicateCoroutinesApi::class)
 fun Application.configureRouting(
     database: MongoDatabase,
     client: HttpClient,
     hashingService: HashingService,
     tokenService: TokenService,
-    tokenConfig: TokenConfig
+    tokenConfig: TokenConfig,
+    timer: CustomTimer
 ) {
 
     val oneSignalService = OneSignalServiceImpl(client, System.getenv("ONE_SIGNAL_REST_API_KEY"))
@@ -56,6 +63,14 @@ fun Application.configureRouting(
     val posterMenuService = PosterMenuService(client, dishesService, storage)
 
     val registrationRoomController = RegistrationRoomController()
+
+    timer.createNewTimer(
+        24*60*60*1000L
+    ) {
+        GlobalScope.launch {
+            ordersService.deleteOldOrders(1)
+        }
+    }
 
     routing {
 

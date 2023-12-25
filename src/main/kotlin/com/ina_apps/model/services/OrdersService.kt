@@ -1,6 +1,8 @@
 package com.ina_apps.model.services
 
 import com.ina_apps.model.database_classes.Order
+import java.time.LocalDate
+import java.time.format.DateTimeFormatter
 
 interface OrdersService {
 
@@ -12,4 +14,5 @@ interface OrdersService {
 
     suspend fun getOrdersForUser(userID: String): List<Order>
 
+    suspend fun deleteOldOrders(months: Long)
 }

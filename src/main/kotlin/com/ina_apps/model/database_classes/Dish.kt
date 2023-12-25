@@ -3,7 +3,6 @@ package com.ina_apps.model.database_classes
 import com.ina_apps.poster.menu.DishModificationGroup
 import com.ina_apps.poster.menu.Modificator
 import com.ina_apps.poster.menu.Source
-import com.ina_apps.poster.orders.Modification
 import kotlinx.serialization.Serializable
 import org.bson.codecs.pojo.annotations.BsonId
 import org.bson.types.ObjectId
@@ -28,7 +27,7 @@ data class Dish(
     val description: Map<String, String?>?= null,
     val additionalDishesId: List<String>? = null,
     val modificators: List<ReducedModificator>? = null,
-    val groupModificators: List<ReducedGroupModificator>? = null,
+    val groupModifications: List<ReducedGroupModifications>? = null,
     val image: ByteArray? = null
 )
 
@@ -47,13 +46,13 @@ data class ReducedModificator(
 )
 
 @Serializable
-data class ReducedGroupModificator(
+data class ReducedGroupModifications(
     val groupId: Int,
-    val name: String,
+    val name: Map<String, String>?,
     val type: Int,
     val numMin: Int? = null,
     val numMax: Int? = null,
-    val modificators: List<ReducedModificator>
+    val modifications: List<ReducedModificator>,
 )
 
 @Serializable

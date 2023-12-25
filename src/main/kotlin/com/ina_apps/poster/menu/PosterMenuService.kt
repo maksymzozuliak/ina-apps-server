@@ -32,7 +32,7 @@ class PosterMenuService(
                 val id = dishesService.updateOrCreate(restaurantId, dish.copy(
                         image = null,
                         modificators = dish.modificators?.map { it.copy(image = null) },
-                        groupModificators = dish.groupModificators?.map { group -> group.copy(modificators = group.modificators.map { it.copy(image = null) }) }
+                        groupModifications = dish.groupModifications?.map { group -> group.copy(modifications = group.modifications.map { it.copy(image = null) }) }
                     )
                 )
                 idList.add(id)
@@ -56,8 +56,8 @@ class PosterMenuService(
                             storage.createFrom(modificatorBlobInfo, modificator.image.inputStream())
                         }
                     }
-                    dish.groupModificators?.forEachIndexed { index, groupModificator ->
-                        groupModificator.modificators.forEach { modificator ->
+                    dish.groupModifications?.forEachIndexed { index, groupModificator ->
+                        groupModificator.modifications.forEach { modificator ->
                             if (modificator.image != null) {
                                 val modificatorBlobId = BlobId.of(bucket.name, "$id/group$index/modificator${modificator.modificatorId}")
                                 val modificatorBlobInfo = BlobInfo.newBuilder(modificatorBlobId)

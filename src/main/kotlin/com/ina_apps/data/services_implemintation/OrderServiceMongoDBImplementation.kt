@@ -6,6 +6,11 @@ import com.mongodb.kotlin.client.coroutine.MongoDatabase
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.toList
 import org.litote.kmongo.eq
+import org.litote.kmongo.gte
+import org.litote.kmongo.lt
+import java.time.LocalDate
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 
 class OrderServiceMongoDBImplementation(database: MongoDatabase): OrdersService {
 
@@ -33,6 +38,17 @@ class OrderServiceMongoDBImplementation(database: MongoDatabase): OrdersService 
     override suspend fun getOrdersForUser(userID: String): List<Order> {
 
         return ordersCollection.find(Order::userId eq userID).toList()
+    }
+
+    override suspend fun deleteOldOrders(months: Long) {
+
+        val currentDate = LocalDate.now()
+        val threeMonthsAgo = currentDate.minusMonths(months)
+        val formatter = DateTimeFormatter.ISO_INSTANT
+        val startDate = threeMonthsAgo.atStartOfDay().atZone(ZoneId.systemDefault()).toInstant()
+        ordersCollection.deleteMany(
+            Order::date lt formatter.format(startDate)
+        )
     }
 
 }
