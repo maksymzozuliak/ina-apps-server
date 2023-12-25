@@ -64,13 +64,13 @@ fun Application.configureRouting(
 
     val registrationRoomController = RegistrationRoomController()
 
-    timer.createNewTimer(
-        24*60*60*1000L
-    ) {
-        GlobalScope.launch {
-            ordersService.deleteOldOrders(1)
-        }
-    }
+//    timer.createNewTimer(
+//        24*60*60*1000L
+//    ) {
+//        GlobalScope.launch {
+//            ordersService.deleteOldOrders(1)
+//        }
+//    }
 
     routing {
 
