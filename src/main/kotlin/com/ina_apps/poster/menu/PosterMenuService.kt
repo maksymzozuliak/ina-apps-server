@@ -120,11 +120,49 @@ class PosterMenuService(
         }
     }
 
-    suspend fun getSourcesList(restaurantId: String) : List<Source> {
+    suspend fun getSources(restaurantId: String, token: String) : List<SourcesResponse> {
 
-        return dishesService.getSourcesList(restaurantId)
+        return try {
+
+            val response = client.get() {
+                url("https://joinposter.com/api/settings.getOrderSources?token=$token")
+                contentType(ContentType.Application.Json)
+            }
+
+            val sources = Json.decodeFromString<GetSourcesResponse>(response.bodyAsText())
+            var hasOne0 = false
+            val newList = mutableListOf<SourcesResponse>()
+            sources.response.forEachIndexed() { index, source ->
+                if (!hasOne0 && source.type == 0) {
+                    hasOne0 = true
+                    newList.add(source)
+                } else if (source.type != 0) {
+                    newList.add(source)
+                }
+            }
+            return newList.toList()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            listOf<SourcesResponse>()
+        }
     }
 
+    suspend fun getCategories(restaurantId: String, token: String) : List<CategoryResponse> {
+
+        return try {
+
+            val response = client.get() {
+                url("https://joinposter.com/api/menu.getCategories?token=$token")
+                contentType(ContentType.Application.Json)
+            }
+
+            val sources = Json.decodeFromString<GetCategoriesResponse>(response.bodyAsText())
+            return sources.response
+        } catch (e: Exception) {
+            e.printStackTrace()
+            listOf<CategoryResponse>()
+        }
+    }
     private fun ProductResponse.toPosterDishInformation() : PosterDishInformation {
 
         var ingredients: String? = null
@@ -154,5 +192,7 @@ class PosterMenuService(
         )
     }
 }
+
+
 
 

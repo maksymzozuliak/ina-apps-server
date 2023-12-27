@@ -20,8 +20,6 @@ interface DishesService {
 
     suspend fun getDishesCount() : Long
 
-    suspend fun getSourcesList(id: String) : List<Source>
-
     suspend fun replaceAll(restaurantId: String, dishes: List<Dish>): Boolean
 
     suspend fun updateOrCreate(restaurantId: String, dish: Dish): String

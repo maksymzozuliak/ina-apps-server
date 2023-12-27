@@ -1,13 +1,12 @@
 package com.ina_apps.plugins.routes.poster
 
-import com.google.cloud.storage.BlobId
-import com.google.cloud.storage.BlobInfo
-import com.google.cloud.storage.Storage
 import com.ina_apps.data.getBucketOrCreate
 import com.ina_apps.model.database_classes.Dish
 import com.ina_apps.model.services.DishesService
 import com.ina_apps.model.services.RestaurantInformationService
+import com.ina_apps.poster.menu.CategoryResponse
 import com.ina_apps.poster.menu.PosterMenuService
+import com.ina_apps.poster.menu.SourcesResponse
 import io.ktor.http.*
 import io.ktor.http.content.*
 import io.ktor.server.application.*
@@ -36,9 +35,14 @@ fun Route.menuRoutingPoster(
                 call.respond(HttpStatusCode.NotFound)
                 return@get
             }
-            val result = menuService.getProducts(restaurantId, restaurantInformation.posterInformation!!.accessToken)
-            val sources = menuService.getSourcesList(restaurantId)
-            call.respond(HttpStatusCode.OK, Pair(sources, result))
+            val dishes = menuService.getProducts(restaurantId, restaurantInformation.posterInformation!!.accessToken)
+            val sources = menuService.getSources(restaurantId, restaurantInformation.posterInformation.accessToken)
+//            val categories = menuService.getCategories(restaurantId, restaurantInformation.posterInformation.accessToken)
+            call.respond(HttpStatusCode.OK, GetMenuResponse(sources, dishes, listOf(
+                CategoryResponse(categoryId = "1", categoryName = "Pershi"),
+                CategoryResponse(categoryId = "2", categoryName = "Drugi"),
+                CategoryResponse(categoryId = "3", categoryName = "Armani"),
+            )))
         }
 
         post("/insertMany") {
@@ -72,3 +76,10 @@ fun Route.menuRoutingPoster(
         }
     }
 }
+
+private data class GetMenuResponse(
+    val sources: List<SourcesResponse>,
+    val dishes: List<Dish>,
+    val categories: List<CategoryResponse>
+)
+

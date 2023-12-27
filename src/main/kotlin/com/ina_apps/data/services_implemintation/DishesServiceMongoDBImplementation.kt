@@ -67,16 +67,6 @@ class DishesServiceMongoDBImplementation(database: MongoDatabase): DishesService
         return dishesCollection.countDocuments()
     }
 
-    override suspend fun getSourcesList(id: String): List<Source> {
-
-        val dishes = getDishesForRestaurant(id)
-        val sources = mutableSetOf<Source>()
-        dishes.forEach() {dish ->
-            sources.addAll(dish.poster?.sources ?: listOf())
-        }
-        return sources.toList()
-    }
-
     override suspend fun replaceAll(restaurantId: String, dishes: List<Dish>): Boolean {
 
         dishesCollection.deleteMany(Dish::restaurantId eq restaurantId)
