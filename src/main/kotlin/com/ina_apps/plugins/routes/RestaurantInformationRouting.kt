@@ -57,57 +57,57 @@ fun Route.restaurantInformationRouting(
             }
         }
 
-        put("/addCategory/{restaurantId}") {
-
-            val restaurantId = call.parameters["restaurantId"]
-            val color = call.parameters["color"]
-            val index = call.parameters["index"]?.toInt()
-            val multipart = call.receiveMultipart()
-            var categoryReceiver: CategoryReceiver? = null
-            var image: PartData.FileItem? = null
-            if (restaurantId != null) {
-                multipart.forEachPart { part ->
-                    if (part is PartData.FileItem) {
-
-                        image = part
-                    } else if (part is PartData.FormItem) {
-                        if (part.name == "name") {
-                            val nameJson = part.value
-                            categoryReceiver = Json.decodeFromString(nameJson)
-                        }
-                        part.dispose()
-                    }
-                }
-                if (categoryReceiver != null) {
-                    val bucket = getBucketOrCreate(restaurantId, storage)
-                    val blobId = BlobId.of(bucket.name, "category-"+image!!.originalFileName)
-                    val blobInfo = BlobInfo.newBuilder(blobId)
-                        .setContentType(image!!.contentType?.contentType)
-                        .build()
-                    storage.createFrom(blobInfo, image!!.streamProvider.invoke())
-                    image!!.dispose()
-                    val result = restaurantInformationService.addCategory(restaurantId,
-                        Category(
-                            id = categoryReceiver!!.name.hashCode(),
-                            name = categoryReceiver!!.name,
-                            color = color,
-                            index = index,
-                            imageName = "category-"+image!!.originalFileName
-                        )
-                    )
-                    if (result) {
-                        call.respond(HttpStatusCode.OK)
-                    } else {
-                        call.respond(HttpStatusCode.BadRequest)
-                    }
-                }
-            } else {
-                call.respond(HttpStatusCode.BadRequest)
-            }
-            if (image != null) {
-                image!!.dispose()
-            }
-        }
+//        put("/addCategory/{restaurantId}") {
+//
+//            val restaurantId = call.parameters["restaurantId"]
+//            val color = call.parameters["color"]
+//            val index = call.parameters["index"]?.toInt()
+//            val multipart = call.receiveMultipart()
+//            var categoryReceiver: CategoryReceiver? = null
+//            var image: PartData.FileItem? = null
+//            if (restaurantId != null) {
+//                multipart.forEachPart { part ->
+//                    if (part is PartData.FileItem) {
+//
+//                        image = part
+//                    } else if (part is PartData.FormItem) {
+//                        if (part.name == "name") {
+//                            val nameJson = part.value
+//                            categoryReceiver = Json.decodeFromString(nameJson)
+//                        }
+//                        part.dispose()
+//                    }
+//                }
+//                if (categoryReceiver != null) {
+//                    val bucket = getBucketOrCreate(restaurantId, storage)
+//                    val blobId = BlobId.of(bucket.name, "category-"+image!!.originalFileName)
+//                    val blobInfo = BlobInfo.newBuilder(blobId)
+//                        .setContentType(image!!.contentType?.contentType)
+//                        .build()
+//                    storage.createFrom(blobInfo, image!!.streamProvider.invoke())
+//                    image!!.dispose()
+//                    val result = restaurantInformationService.addCategory(restaurantId,
+//                        Category(
+//                            id = categoryReceiver!!.name.hashCode(),
+//                            name = categoryReceiver!!.name,
+//                            color = color,
+//                            index = index,
+//                            imageName = "category-"+image!!.originalFileName
+//                        )
+//                    )
+//                    if (result) {
+//                        call.respond(HttpStatusCode.OK)
+//                    } else {
+//                        call.respond(HttpStatusCode.BadRequest)
+//                    }
+//                }
+//            } else {
+//                call.respond(HttpStatusCode.BadRequest)
+//            }
+//            if (image != null) {
+//                image!!.dispose()
+//            }
+//        }
     }
 }
 

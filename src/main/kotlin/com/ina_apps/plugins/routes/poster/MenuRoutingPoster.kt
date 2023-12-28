@@ -36,13 +36,9 @@ fun Route.menuRoutingPoster(
                 return@get
             }
             val dishes = menuService.getProducts(restaurantId, restaurantInformation.posterInformation!!.accessToken)
-            val sources = menuService.getSources(restaurantId, restaurantInformation.posterInformation.accessToken)
-//            val categories = menuService.getCategories(restaurantId, restaurantInformation.posterInformation.accessToken)
-            call.respond(HttpStatusCode.OK, GetMenuResponse(sources, dishes, listOf(
-                CategoryResponse(categoryId = "1", categoryName = "Pershi"),
-                CategoryResponse(categoryId = "2", categoryName = "Drugi"),
-                CategoryResponse(categoryId = "3", categoryName = "Armani"),
-            )))
+            val sources = menuService.getSources(restaurantInformation.posterInformation.accessToken)
+            val categories = menuService.getCategories(restaurantInformation.posterInformation.accessToken)
+            call.respond(HttpStatusCode.OK, GetMenuResponse(sources, dishes, categories))
         }
 
         post("/insertMany") {
@@ -54,19 +50,6 @@ fun Route.menuRoutingPoster(
                 call.respond(HttpStatusCode.Forbidden)
                 return@post
             }
-//            val newDishes = mutableListOf<Dish>()
-//            dishes.forEach { dish ->
-//                if (dish.image != null) {
-//                    val bucket = getBucketOrCreate(restaurantId, storage)
-//                    val blobId = BlobId.of(bucket.name, dish.poster?.posterId.toString())
-//                    val blobInfo = BlobInfo.newBuilder(blobId)
-//                        .setContentType("image")
-//                        .build()
-//                    storage.createFrom(blobInfo, dish.image.inputStream())
-//                }
-//                newDishes.add(dish.copy(image = null))
-//            }
-//            val result = dishesService.replaceAll(restaurantId ,newDishes)
             val result = menuService.insertMany(restaurantId, dishes)
             if (result) {
                 call.respond(HttpStatusCode.Created)

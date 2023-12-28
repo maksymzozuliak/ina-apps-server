@@ -25,8 +25,7 @@ class PosterMenuService(
         return try {
             dishesService.deleteRedundantData(restaurantId, dishes.map { it.posterProductId })
             val bucket = getBucketOrCreate(restaurantId, storage)
-            val fullImageList = storage.list(restaurantId).values.map { it.name }
-            val imageList = fullImageList.map { it.substringBefore("/") }.toMutableSet()
+            val fullImageList = storage.list(restaurantId).values.map { it.name }.toMutableSet()
             val idList = mutableListOf<String>()
             dishes.forEach { dish ->
                 val id = dishesService.updateOrCreate(restaurantId, dish.copy(
@@ -39,7 +38,6 @@ class PosterMenuService(
                 if (dish.image != null) {
                     val folderBlobId = BlobId.of(bucket.name, "$id/")
                     val folderBlobInfo = BlobInfo.newBuilder(folderBlobId).build()
-                    val folderBlob = storage.create(folderBlobInfo, byteArrayOf())
                     val blobId = BlobId.of(bucket.name, "$id/$id")
                     val blobInfo = BlobInfo.newBuilder(blobId)
                         .setContentType("image")
@@ -70,8 +68,8 @@ class PosterMenuService(
                     }
                 }
             }
-            imageList.removeAll(idList.toSet())
-            imageList.forEach { id ->
+            fullImageList.filter{ !idList.contains(it.substringBefore("/")) }
+            fullImageList.forEach { id ->
                 val blobId = BlobId.of(bucket.name, id)
                 storage.delete(blobId)
             }
@@ -120,7 +118,7 @@ class PosterMenuService(
         }
     }
 
-    suspend fun getSources(restaurantId: String, token: String) : List<SourcesResponse> {
+    suspend fun getSources(token: String) : List<SourcesResponse> {
 
         return try {
 
@@ -147,7 +145,7 @@ class PosterMenuService(
         }
     }
 
-    suspend fun getCategories(restaurantId: String, token: String) : List<CategoryResponse> {
+    suspend fun getCategories(token: String) : List<CategoryResponse> {
 
         return try {
 

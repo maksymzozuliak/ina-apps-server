@@ -19,7 +19,6 @@ data class RestaurantInformation(
     val zoom: Float?= null,
     val phoneNumber: String?= null,
     val deliverySettings: DeliverySettings?= null,
-    val category: List<Category>?= null
 )
 
 @Serializable
@@ -30,16 +29,6 @@ data class PosterInformation(
     val accountNumber: String,
     val ownerInfo: OwnerInfo,
     val paymentMethodId: Int
-)
-
-@Serializable
-data class Category(
-
-    val id: Int,
-    val index: Int?,
-    val name: Map<String, String>,
-    val imageName: String?,
-    val color: String?
 )
 
 @Serializable

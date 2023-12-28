@@ -55,20 +55,4 @@ class RestaurantInformationServiceMongoDBImplementation(database: MongoDatabase)
         val updateResult = restaurantInformationCollection.updateOne(RestaurantInformation::id eq id, update)
         return updateResult.wasAcknowledged()
     }
-
-
-    override suspend fun addCategory(id: String, category: Category): Boolean {
-
-        val result: RestaurantInformation? = if (category.index == null) {
-            val categories = getRestaurantInformationById(id)?.category
-            restaurantInformationCollection.findOneAndUpdate(
-                RestaurantInformation::id eq id, addToSet("category", category.copy(index = categories?.size))
-            )
-        } else {
-            restaurantInformationCollection.findOneAndUpdate(
-                RestaurantInformation::id eq id, addToSet("category", category)
-            )
-        }
-        return result != null
-    }
 }

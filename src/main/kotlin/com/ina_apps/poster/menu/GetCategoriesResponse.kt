@@ -6,6 +6,8 @@ import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
 import kotlinx.serialization.descriptors.SerialDescriptor
 import kotlinx.serialization.encoding.Decoder
 import kotlinx.serialization.encoding.Encoder
+import kotlinx.serialization.json.JsonDecoder
+import kotlinx.serialization.json.JsonPrimitive
 
 
 @Serializable
@@ -15,13 +17,15 @@ data class GetCategoriesResponse(
 
 @Serializable
 data class CategoryResponse(
-//    @Serializable(with = CategoryIdSerializer::class)
+    @Serializable(with = CategoryIdSerializer::class)
     @SerialName("category_id")
     val categoryId: String,
     @SerialName("category_name")
     val categoryName: String,
     @SerialName("category_photo")
     val categoryPhoto: String? = null,
+    @SerialName("category_photo_origin")
+    val categoryPhotoOrigin: String? = null,
     @SerialName("parent_category")
     val parentCategory: String? = null,
     @SerialName("category_color")
@@ -39,30 +43,24 @@ data class CategoryResponse(
     val level: String? = null,
     @SerialName("category_tag")
     val categoryTag: String? = null,
-    val visible: Visible? = null
+    val visible: List<Visible>? = null
 )
 
 @OptIn(ExperimentalSerializationApi::class)
-@Serializer(forClass = CategoryResponse::class)
-object CategoryIdSerializer : KSerializer<Any> {
+@Serializer(forClass = String::class)
+object CategoryIdSerializer : KSerializer<String> {
 
     override val descriptor: SerialDescriptor =
-        PrimitiveSerialDescriptor("CategoryId", PrimitiveKind.STRING)
+        PrimitiveSerialDescriptor("category_id", PrimitiveKind.STRING)
 
-    override fun serialize(encoder: Encoder, value: Any) {
-        when (value) {
-            is String -> encoder.encodeString(value)
-            is Int -> encoder.encodeInt(value)
-            else -> throw SerializationException("Unsupported type for MyData.myField: $value")
-        }
+    override fun serialize(encoder: Encoder, value: String) {
+        encoder.encodeString(value)
     }
 
-    override fun deserialize(decoder: Decoder): Any {
-        val input = decoder.decodeString()
-        return try {
-            input.toInt()
-        } catch (e: NumberFormatException) {
-            input
+    override fun deserialize(decoder: Decoder): String {
+        return when (val jsonToken = (decoder as? JsonDecoder)?.decodeJsonElement()) {
+            is JsonPrimitive -> jsonToken.content
+            else -> jsonToken.toString()
         }
     }
 }
