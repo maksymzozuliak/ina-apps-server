@@ -16,6 +16,7 @@ class DishesServiceMongoDBImplementation(database: MongoDatabase): DishesService
 
     private val dishesCollection = database.getCollection<Dish>("Dish")
     private val userCollection = database.getCollection<User>("User")
+    private val categoryCollection = database.getCollection<Category>("Category")
 
     override suspend fun insertDish(dish: Dish): String? {
 
@@ -57,9 +58,7 @@ class DishesServiceMongoDBImplementation(database: MongoDatabase): DishesService
             Dish::restaurantId eq restaurantId,
             Dish::posterProductId nin idList
         )
-
         dishesCollection.deleteMany(filter)
-
     }
 
     override suspend fun getDishesCount(): Long {
@@ -85,6 +84,30 @@ class DishesServiceMongoDBImplementation(database: MongoDatabase): DishesService
             it.id
         } ?: dishesCollection.find(Dish::posterProductId eq dish.posterProductId).firstOrNull()?.id
         return id!!
+    }
+
+    override suspend fun updateOrCreateCategory(category: Category) {
+
+        val findAndReplaceOptions = FindOneAndReplaceOptions()
+            .upsert(true)
+            .returnDocument(ReturnDocument.AFTER)
+
+        categoryCollection.findOneAndReplace(Category::categoryId eq category.categoryId, category, findAndReplaceOptions)
+    }
+
+    override suspend fun getCategoriesForRestaurant(restaurantId: String): List<Category> {
+
+        val categoriesForRestaurant = categoryCollection.find(Category::restaurantId eq restaurantId)
+        return categoriesForRestaurant.toList()
+    }
+
+    override suspend fun deleteRedundantCategoryData(restaurantId: String, idList: List<String>) {
+
+        val filter = and(
+            Category::restaurantId eq restaurantId,
+            Category::id nin idList
+        )
+        categoryCollection.deleteMany(filter)
     }
 
 }

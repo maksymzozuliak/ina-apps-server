@@ -1,8 +1,12 @@
 package com.ina_apps.model.services
 
+import com.ina_apps.model.database_classes.Category
 import com.ina_apps.model.database_classes.Dish
 import com.ina_apps.model.database_classes.PosterDishInformation
 import com.ina_apps.poster.menu.Source
+import org.litote.kmongo.and
+import org.litote.kmongo.eq
+import org.litote.kmongo.nin
 
 interface DishesService {
 
@@ -23,4 +27,10 @@ interface DishesService {
     suspend fun replaceAll(restaurantId: String, dishes: List<Dish>): Boolean
 
     suspend fun updateOrCreate(restaurantId: String, dish: Dish): String
+
+    suspend fun updateOrCreateCategory(category: Category)
+
+    suspend fun getCategoriesForRestaurant(restaurantId: String): List<Category>
+
+    suspend fun deleteRedundantCategoryData(restaurantId: String, idList: List<String>)
 }

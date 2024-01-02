@@ -1,5 +1,6 @@
 package com.ina_apps.poster.menu
 
+import com.ina_apps.model.database_classes.Category
 import kotlinx.serialization.*
 import kotlinx.serialization.descriptors.PrimitiveKind
 import kotlinx.serialization.descriptors.PrimitiveSerialDescriptor
@@ -71,3 +72,11 @@ data class Visible(
     val spotId: Int,
     val visible: Int
 )
+
+fun CategoryResponse.toCategory() : Category {
+    return Category(
+        categoryId = this.categoryId,
+        categoryName = this.categoryName,
+        color = this.categoryColor
+    )
+}

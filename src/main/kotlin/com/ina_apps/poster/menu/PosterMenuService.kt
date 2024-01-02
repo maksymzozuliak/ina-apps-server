@@ -5,6 +5,7 @@ import com.google.cloud.storage.BlobId
 import com.google.cloud.storage.BlobInfo
 import com.google.cloud.storage.Storage
 import com.ina_apps.data.getBucketOrCreate
+import com.ina_apps.model.database_classes.Category
 import com.ina_apps.model.database_classes.Dish
 import com.ina_apps.model.database_classes.PosterDishInformation
 import com.ina_apps.model.services.DishesService
@@ -54,10 +55,10 @@ class PosterMenuService(
                             storage.createFrom(modificatorBlobInfo, modificator.image.inputStream())
                         }
                     }
-                    dish.groupModifications?.forEachIndexed { index, groupModificator ->
+                    dish.groupModifications?.forEach { groupModificator ->
                         groupModificator.modifications.forEach { modificator ->
                             if (modificator.image != null) {
-                                val modificatorBlobId = BlobId.of(bucket.name, "$id/group$index/modificator${modificator.modificatorId}")
+                                val modificatorBlobId = BlobId.of(bucket.name, "$id/group${groupModificator.groupId}/modificator${modificator.modificatorId}")
                                 val modificatorBlobInfo = BlobInfo.newBuilder(modificatorBlobId)
                                     .setContentType("image")
                                     .setAcl(listOf(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER)))
@@ -69,6 +70,41 @@ class PosterMenuService(
                 }
             }
             fullImageList.filter{ !idList.contains(it.substringBefore("/")) }
+            fullImageList.forEach { id ->
+                val blobId = BlobId.of(bucket.name, id)
+                storage.delete(blobId)
+            }
+            true
+        } catch (e: Exception) {
+            false
+        }
+    }
+
+    suspend fun insertCategories(restaurantId: String, categories: List<Category>) : Boolean {
+
+        return try {
+            val categoriesWithId = categories.map { it.copy(restaurantId = restaurantId) }
+            dishesService.deleteRedundantCategoryData(restaurantId, categoriesWithId.map { it.id?: "" })
+            val bucket = getBucketOrCreate("${restaurantId}_categories", storage)
+            val fullImageList = storage.list("${restaurantId}_categories").values.map { it.name }
+            val idList = mutableListOf<String>()
+            categories.forEach { category ->
+                dishesService.updateOrCreateCategory(category.copy(
+                    image = null,
+                    restaurantId = restaurantId
+                    )
+                )
+                idList.add("category${category.categoryId}")
+                if (category.image != null) {
+                    val blobId = BlobId.of(bucket.name, "category${category.categoryId}")
+                    val blobInfo = BlobInfo.newBuilder(blobId)
+                        .setContentType("image")
+                        .setAcl(listOf(Acl.of(Acl.User.ofAllUsers(), Acl.Role.READER)))
+                        .build()
+                    storage.createFrom(blobInfo, category.image.inputStream())
+                }
+            }
+            fullImageList.filter{ !idList.contains(it) }
             fullImageList.forEach { id ->
                 val blobId = BlobId.of(bucket.name, id)
                 storage.delete(blobId)
@@ -100,7 +136,7 @@ class PosterMenuService(
                     isActive = false,
                     position = dishesService.getDishesCount() + 1,
                     weight = if(dishInformation.type == 3) 1 else menu.response.find{ it.productId == productId }?.out,
-                    unit = if(dishInformation.type == 3) "шт" else null,
+                    unit = if(dishInformation.type == 3) "pieces" else null,
                 )
                 resultList.add(newDish)
             }
@@ -145,7 +181,7 @@ class PosterMenuService(
         }
     }
 
-    suspend fun getCategories(token: String) : List<CategoryResponse> {
+    suspend fun getCategories(restaurantId: String, token: String) : List<Category> {
 
         return try {
 
@@ -153,12 +189,21 @@ class PosterMenuService(
                 url("https://joinposter.com/api/menu.getCategories?token=$token")
                 contentType(ContentType.Application.Json)
             }
-
-            val sources = Json.decodeFromString<GetCategoriesResponse>(response.bodyAsText())
-            return sources.response
+            val categories = Json.decodeFromString<GetCategoriesResponse>(response.bodyAsText())
+            val dbCategories = dishesService.getCategoriesForRestaurant(restaurantId)
+            val resultList: MutableList<Category> = mutableListOf()
+            categories.response.forEachIndexed() { index, category ->
+                val temp = dbCategories.find { it.categoryId == category.categoryId }
+                if (temp != null) {
+                    resultList.add(temp)
+                } else {
+                    resultList.add(category.toCategory())
+                }
+            }
+            return resultList.toList()
         } catch (e: Exception) {
             e.printStackTrace()
-            listOf<CategoryResponse>()
+            listOf<Category>()
         }
     }
     private fun ProductResponse.toPosterDishInformation() : PosterDishInformation {

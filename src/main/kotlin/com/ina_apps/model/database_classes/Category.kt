@@ -9,8 +9,9 @@ data class Category(
 
     @BsonId
     val id: String? = ObjectId().toString(),
+    val restaurantId: String? = null,
     val categoryId: String,
     val categoryName: String,
-    val color: String,
+    val color: String? = null,
     val image: ByteArray? = null
 )

@@ -1,6 +1,7 @@
 package com.ina_apps.plugins.routes.poster
 
 import com.ina_apps.data.getBucketOrCreate
+import com.ina_apps.model.database_classes.Category
 import com.ina_apps.model.database_classes.Dish
 import com.ina_apps.model.services.DishesService
 import com.ina_apps.model.services.RestaurantInformationService
@@ -37,7 +38,7 @@ fun Route.menuRoutingPoster(
             }
             val dishes = menuService.getProducts(restaurantId, restaurantInformation.posterInformation!!.accessToken)
             val sources = menuService.getSources(restaurantInformation.posterInformation.accessToken)
-            val categories = menuService.getCategories(restaurantInformation.posterInformation.accessToken)
+            val categories = menuService.getCategories(restaurantId, restaurantInformation.posterInformation.accessToken)
             call.respond(HttpStatusCode.OK, GetMenuResponse(sources, dishes, categories))
         }
 
@@ -57,12 +58,29 @@ fun Route.menuRoutingPoster(
                 call.respond(HttpStatusCode.InternalServerError)
             }
         }
+
+        post("/insertCategories") {
+
+            val restaurantId = call.parameters["restaurantId"]
+
+            val categories = call.receive<List<Category>>()
+            if (restaurantId == null) {
+                call.respond(HttpStatusCode.Forbidden)
+                return@post
+            }
+            val result = menuService.insertCategories(restaurantId, categories)
+            if (result) {
+                call.respond(HttpStatusCode.Created)
+            } else {
+                call.respond(HttpStatusCode.InternalServerError)
+            }
+        }
     }
 }
 
 private data class GetMenuResponse(
     val sources: List<SourcesResponse>,
     val dishes: List<Dish>,
-    val categories: List<CategoryResponse>
+    val categories: List<Category>
 )
 
